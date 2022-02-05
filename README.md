@@ -19,3 +19,7 @@ The rules of the game are fairly straightforward:
 * The goal of everyone else (all but the 'card czar' - AKA the one holding the black card) is to find a white card they think is the most humorous to fill in the blank of the black card.
 * Once all white cards have been submitted to the card czar, the card czar then chooses which white card they think is the most humorous in place of the blank.
 * The person who submitted said white card gets a point, and then the next round starts and the next person in the line becomes the new card czar.
+
+### Data Flow UML
+
+![Data Flow Diagram](./UML.jpg)
