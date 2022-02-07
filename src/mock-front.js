@@ -22,18 +22,15 @@ socket.on('connect', () => {
 
   socket.on('game start', (payload) => {
     blackCard = payload.card;
-    socket.emit('choice', (payload) => {
-      // Hard coding 0, player will chose and send appropriate choice here
-      payload.choice = whiteCards[0];
-    });
+    // Client choses choice from their white cards, sends to server, which sends array of 3 items to czar
+    let choice = whiteCards.shift();
+    socket.emit('choice', { choice: choice });
     socket.on('choices', (payload) => {
       czarAnswers = payload.czarAnswers;
-      socket.emit('round winner', (payload) => {
-        payload.roundWinner = czarAnswers[0];
-      });
-      // Up the count for round winner (server?)
-      // Black & white cards need to be discarded, draw new white card
+      socket.emit('round winner', { roundWinner: czarAnswers[0] });
     });
+    // Up the count for round winner (server?)
+    // Black & white cards need to be discarded, draw new white card
   });
 
   socket.on('game end', () => {
