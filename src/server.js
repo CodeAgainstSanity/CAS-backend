@@ -1,4 +1,9 @@
 'use strict';
+
+const server = require('../index.js');
+const CAS = server.of('/CAS');
+
+
 // ON 'connection' :
 //   EMIT 'new player joined', payload: socketid
 //   push socketid to queue
@@ -41,7 +46,6 @@
 //   for (i = 1; i<playerqueue.length; i++) drawCard(socketid)
 //   playerqueue.push(playerqueue.shift())
 //   assignCzar()
-
 
 // drawCard(socketid) 
 //   pop one card from white stack
