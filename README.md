@@ -82,35 +82,35 @@ assignCzar()
 
 ### Events
 
-- client connection
-  - MVP is one game room hard-coded
-  - assign czar = 1st socketid
-  - client socketid added to player queue
-  - if player queue length === 4
-    - czar gets 1 black card, emits 'letsgo' payload: black card
-    - on letsgo, START game 
-  - notify any sockets of new connection
-  - build the shuffled decks (pulling from db, randomizing)
-  - each player gets 7 white cards
-  - popping from shuffled deck stacks on socket server
+* client connection
+  * MVP is one game room hard-coded
+  * assign czar = 1st socketid
+  * client socketid added to player queue
+  * if player queue length === 4
+    * czar gets 1 black card, emits 'letsgo' payload: black card
+    * on letsgo, START game 
+  * notify any sockets of new connection
+  * build the shuffled decks (pulling from db, randomizing)
+  * each player gets 7 white cards
+  * popping from shuffled deck stacks on socket server
 
-- on 'letsgo':
-- notify players of round start
-  - setTimeout ~5-10 sec send all players the prompt from black card
-  - players select card submission
-  - on (receiving 3 white cards back OR 30-60 seconds)
-    - white cards displayed to all
-    - czar selects winner (compare socketid to verify)
-    - winner socketid awarded point
-    - stretch: create winning combo object, pass to winner
-    - look at player scores, 
-      - if all < 3 emit 'another round'
-      - else declare winner, setTimeout for disconnect or STRETCH: replay
-    - on 'another round':
-    - clear the table (UI / potentially in memory)
-    - on 'another round', players with 6 cards will emit 'draw'
-    - on 'draw' server pops off next card for each
-  - dequeue/enqueue the player queue to rotate czar
-  - czar gets 1 black card, emits 'letsgo'
+* on 'letsgo':
+* notify players of round start
+  * setTimeout ~5-10 sec send all players the prompt from black card
+  * players select card submission
+  * on (receiving 3 white cards back OR 30-60 seconds)
+    * white cards displayed to all
+    * czar selects winner (compare socketid to verify)
+    * winner socketid awarded point
+    * stretch: create winning combo object, pass to winner
+    * look at player scores, 
+      * if all < 3 emit 'another round'
+      * else declare winner, setTimeout for disconnect or STRETCH: replay
+    * on 'another round':
+    * clear the table (UI / potentially in memory)
+    * on 'another round', players with 6 cards will emit 'draw'
+    * on 'draw' server pops off next card for each
+  * dequeue/enqueue the player queue to rotate czar
+  * czar gets 1 black card, emits 'letsgo'
 
-- on disconnect, remove client's id from player queue
+* on disconnect, remove client's id from player queue
