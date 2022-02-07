@@ -41,3 +41,13 @@ The rules of the game are fairly straightforward:
 
 
 - on disconnect, remove client's id from player queue
+
+### Client events
+
+* Client connect (emit)
+  * Sends id
+  * Event Cards (on)
+    * Receives 7 white cards as payload
+  * Event Gamestart (on)
+  * Event Disconnect (emit)
+    * Sends client id
