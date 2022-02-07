@@ -30,7 +30,10 @@ socket.on('connect', () => {
       socket.emit('round winner', { roundWinner: czarAnswers[0] });
     });
     // Up the count for round winner (server?)
-    // Black & white cards need to be discarded, draw new white card
+    socket.emit('draw white');
+    socket.on('draw white', (payload) => {
+      whiteCards.push(payload.card);
+    });
   });
 
   socket.on('game end', () => {
