@@ -23,3 +23,21 @@ The rules of the game are fairly straightforward:
 ### Data Flow UML
 
 ![Data Flow Diagram](./UML.jpg)
+
+### Events
+
+- client connection
+  - MVP is one game room hard-coded
+  - assign czar = 1st socketid
+  - client socketid added to player queue
+  - START game when player queue length === 4
+  - notify any sockets of new connection
+
+- notify players of game start
+- deal cards to players
+
+
+
+
+
+- on disconnect, remove client's id from player queue
