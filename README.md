@@ -1,14 +1,15 @@
-Seattle-code-401d45: Scott Lease, Keian Anthony, Emily Landers, Andrew Enyeart,
 
-Code 401 Project: Prep #2 - Code against Sanity
+# Code Against Sanity
 
-## Project Summary
+---------------------------------
 
-### Name of Project
+## We are deployed on Heroku
 
-**Cards Against Sanity**
+[project url here]
 
-### Summary of idea
+---------------------------------
+
+## Web Application
 
 Cards Against Sanity (CAS) is our idea of what that popular card game: Cards Against Humanity™ would look like if it was made in the eyes of a software developer. More specifically, one going through a coding boot-camp.
 
@@ -19,10 +20,85 @@ The rules of the game are fairly straightforward:
 * The goal of everyone else (all but the 'card czar' - AKA the one holding the black card) is to find a white card they think is the most humorous to fill in the blank of the black card.
 * Once all white cards have been submitted to the card czar, the card czar then chooses which white card they think is the most humorous in place of the blank.
 * The person who submitted said white card gets a point, and then the next round starts and the next person in the line becomes the new card czar.
+---------------------------------
 
-### Data Flow UML
+## Tools Used
 
-![Data Flow Diagram](./UML.jpg)
+Microsoft Visual Studio
+
+- Node.js
+- Socket.io
+- MongoDB
+- Heroku
+
+---------------------------------
+
+## Getting Started
+
+Clone this repository to your local machine.
+
+```
+git clone git@github.com:CodeAgainstSanity/CAS-backend.git 
+```
+
+Once downloaded, you can either use the dotnet CLI utilities or Visual Studio 2017 (or greater) to build the web application.
+
+```
+cd CAS-backend
+`npm i`
+```
+
+Install all dependencies needed for the project.
+
+```
+Database
+```
+
+**explain how to use the database**
+
+```
+cd CAS-backend
+npm start
+```
+
+---------------------------------
+
+## Usage
+
+***[Provide some images of your app that shows how it can be used with brief description as title]***
+
+### Overview of Game
+
+![Overview of Recent Posts](https://via.placeholder.com/500x250)
+
+---------------------------
+
+## Data Flow
+
+The socket server connects to individual clients (a minimum of four), each client represents a player which will be added to a player queue. The server communicates with the database for the prompts/black cards each round, and for the initial answers/white cards which will be replenished after each round.
+
+![Data Flow Diagram](UML.jpg)
+
+---------------------------
+
+## Data Model
+
+### Overall Project Schema
+
+***Both the prompts/black cards, and the answers/white cards are stored within our database schema as strings***
+![Database Schema](DBSchema.png)
+
+---------------------------
+
+## Authors
+
+- Keian Anthony - [Keian's Github](https://github.com/Keian-A)
+- Scott Lease - [Scott's Github](https://github.com/scottie-l)
+- Andrew Enyeart - [Andrew's Github](https://github.com/aenyeart)
+- Emily Landers - [Emily's Github](https://github.com/Emily-Landers)
+
+------------------------------
+
 
 ### Socket Server pub/sub breakdown:
 
