@@ -1,21 +1,34 @@
 'use strict';
 
+require('dotenv').config();
 const server = require('../index.js');
 const CAS = server.of('/CAS');
+const mongoose = require('mongoose')
+
+mongoose.connect(process.env.MONGODB_URI);
+const db = mongoose.connection;
 
 
-// ON 'connection' :
-//   EMIT 'new player joined', payload: socketid
-//   push socketid to queue
-//     if playerqueue.length === 4 :
-//       assignCzar()
-//       await pull decks from DB
-//       randomize deck  
-//       dealCards : 
-//         foreach player in queue:
-//           pop 7 cards from white stack, 
-//           EMIT array of cards to player 
-  
+const playerQueue = [];
+
+CAS.on('connection', (socket) => { 
+  CAS.emit('new player joined', socket.id) // TEST should this be a player object instead?
+   playerQueue.push(socket.id);
+    if (playerqueue.length === 4) {
+      assignCzar();
+      let whiteDeck = await  // await pull decks from DB
+      // randomize deck
+      dealCards();
+    }
+});
+
+function dealCards() {
+playerQueue.forEach((player) => {
+  //   pop 7 cards from white stack, 
+  //   EMIT array of cards to player 
+});
+}
+
 //   ON 'letsgo' :
 //     EMIT 'round starting in 5 seconds'
 //     setTimeout(startRound(), 5000)
