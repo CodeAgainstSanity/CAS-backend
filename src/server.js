@@ -39,6 +39,8 @@ class Player {
 }
 
 CAS.on('connection', (socket) => {
+  // socket.on('join', )
+  console.log(`Successfully connected to ${socket.id}`);
   socket.emit('new player joined', socket.id) // TEST should this be a player object instead?
   players.push(new Player(socket.id));
   if (players.length === 4) {
