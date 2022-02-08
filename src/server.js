@@ -65,12 +65,14 @@ CAS.on('connection', async (socket) => {
   socket.broadcast.emit('new player joined', socket.id);
   players.push(new Player(socket.id));
   if (players.length === 4) {
+    firstCzar();
     whiteDeck = await WhiteDeckModel.find({});
     blackDeck = await BlackDeckModel.find({});
     whiteDeck = shuffle(whiteDeck.WhiteCards);
     blackDeck = shuffle(blackDeck.BlackCards);
     console.log(whiteDeck, blackDeck);
     dealCards();
+    // Need to start round here
   }
 
   socket.on('card submission', (payload) => {
@@ -133,11 +135,16 @@ CAS.on('connection', async (socket) => {
     });
   }
 
+  // Alerts first person they are czar
+  function firstCzar() {
+    socket.to(players[0].socketId).emit('Czar', 'You are the new Card Czar')
+  }
+
   // Assigns next person in queue as the Czar, and updates the queue
   function assignCzar() {
     let tempPlayer = players.shift();
     players.push(tempPlayer);
-    tempPlayer = players[0];
+    tempPlayer = players[0].socketId;
     socket.to(tempPlayer).emit('Czar', 'You are the new Card Czar');
   }
 
