@@ -68,9 +68,10 @@ CAS.on('connection', async (socket) => {
     firstCzar();
     whiteDeck = await WhiteDeckModel.find({});
     blackDeck = await BlackDeckModel.find({});
-    whiteDeck = shuffle(whiteDeck.WhiteCards);
-    blackDeck = shuffle(blackDeck.BlackCards);
-    console.log(whiteDeck, blackDeck);
+    whiteDeck = whiteDeck[0].Cards;
+    blackDeck = blackDeck[0].Cards;
+    whiteDeck = shuffle(whiteDeck);
+    blackDeck = shuffle(blackDeck);
     dealCards();
     // Need to start round here
   }
@@ -131,7 +132,7 @@ CAS.on('connection', async (socket) => {
         handOfCards.push(whiteDeck.pop());
       }
       //   EMIT array of cards to player
-      socket.to(player[idx].socketId).emit('hand of white cards', { handOfCards });
+      socket.to(player.socketId).emit('hand of white cards', { handOfCards });
     });
   }
 
