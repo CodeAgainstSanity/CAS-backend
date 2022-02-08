@@ -92,10 +92,10 @@ The socket server connects to individual clients (a minimum of four), each clien
 
 ## Authors
 
-Keian Anthony
-Scott Lease
-Andrew Enyeart
-Emily Landers
+- Keian Anthony - [Keian's Github](https://github.com/Keian-A)
+- Scott Lease - [Scott's Github](https://github.com/scottie-l)
+- Andrew Enyeart - [Andrew's Github](https://github.com/aenyeart)
+- Emily Landers - [Emily's Github](https://github.com/Emily-Landers)
 
 ------------------------------
 
