@@ -7,6 +7,7 @@ const mongoose = require('mongoose')
 
 mongoose.connect(process.env.MONGODB_URI);
 const db = mongoose.connection;
+const { WhiteCards, BlackCards } = require('./schema/cards.js')
 const shuffle = require('./callbacks/shuffle.js');
 
 /*
@@ -43,9 +44,9 @@ CAS.on('connection', (socket) => {
   if (players.length === 4) {
     assignCzar();
     // randomize deck
-    whiteDeck = await  // await pull decks from DB
+    whiteDeck = await WhiteCards.find( {} ); // await pull decks from DB
     whiteDeck = shuffle(whiteDeck.WhiteCards);
-    blackDeck = await  // await pull decks from DB
+    blackDeck = await  BlackCards.find( {} ); // await pull decks from DB
     blackDeck = shuffle(blackDeck.BlackCards);
     dealCards();
   }
