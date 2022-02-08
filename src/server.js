@@ -81,7 +81,6 @@ CAS.on('connection', async (socket) => {
     let tempObj = { card: payload.card, socketId: socket.id };
     // Card submissions var gets purged on new round, so dont worry about pushing here
     cardSubmissions.push(tempObj);
-
     // If all 3 players submitted a choice, card submissions arr.length === 3
     if (cardSubmissions.length === 3) {
       shuffle(cardSubmissions);
@@ -102,13 +101,24 @@ CAS.on('connection', async (socket) => {
       });
 
       for (let ii = 0; ii < players.length; ii++) {
-        if (players[ii].socketId === winnerObj.socketId) {
+        if (players[ii].socketId === winnerObj[0].socketId) {
           players[ii].points += 1;
+          console.log(players);
+
           if (players[ii].points < 3) {
             cardSubmissions = [];
-            socket.emit('another round');
+
+            CAS.emit('another round');
+
+            for (ii = 1; ii < players.length - 1; ii++) {
+              let tempCard = whiteDeck.pop();
+              CAS.to(players[ii]).emit('draw white', { card: tempCard });
+            }
+
+            assignCzar();
+
           } else {
-            socket.emit('game winner', { winner: players[ii].socketId });
+            CAS.emit('game winner', { winner: players[ii].socketId });
           }
         }
       }
@@ -116,13 +126,13 @@ CAS.on('connection', async (socket) => {
   });
 
   // Winner emits this event from each round
-  CAS.on('another round', () => {
-    for (ii = 1; ii < players.length - 1; ii++) {
-      let tempCard = whiteDeck.pop();
-      CAS.to(players[ii]).emit('draw white', { card: tempCard });
-    }
-    assignCzar();
-  });
+  // CAS.on('another round', () => {  // TEST server listens to itself?
+  //   for (ii = 1; ii < players.length - 1; ii++) {
+  //     let tempCard = whiteDeck.pop();
+  //     CAS.to(players[ii]).emit('draw white', { card: tempCard });
+  //   }
+  //   assignCzar();
+  // });
 
   // Just the czar emits this (client side) after receiving black card
   socket.on('letsGo', () => {
@@ -152,6 +162,7 @@ CAS.on('connection', async (socket) => {
 
   // Assigns next person in queue as the Czar, and updates the queue
   function assignCzar() {
+    console.log('Choosing new czar');
     let tempPlayer = players.shift();
     players.push(tempPlayer);
     tempPlayer = players[0].socketId;
