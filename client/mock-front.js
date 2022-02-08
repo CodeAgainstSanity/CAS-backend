@@ -14,15 +14,9 @@ let czarOptions = [];
 let isCzar = false;
 
 player.on('connect', (socket) => {
-  // rl.setPrompt(`What is your name? `);
-  // rl.prompt();
-  // rl.on('line', (name) => {
-  //   console.log(`name received by the user: ${name}`);
-  //   rl.close();
-  // })
-  console.log('connection successful ', player.id);
-
-
+  player.on('connection successful', (payload) => {
+    console.log('Connection successful, your name is:', payload.userName);
+  });
   player.on('new player joined', (payload) => {
     console.log('New Player Joined:', payload);
   });
@@ -70,6 +64,10 @@ player.on('connect', (socket) => {
     }
   });
 
+  player.on('show all choice', (payload) => {
+    console.log('The winning card:', payload.winningCard);
+  });
+
   player.on('card submissions', (payload) => {
     czarOptions = payload.czarOptions;
     if (isCzar) {
@@ -81,21 +79,10 @@ player.on('connect', (socket) => {
   player.on('game winner', (payload) => {
     console.log('Congratulations, the game winner is:', payload.winner);
   });
+
+  player.on('pls disconnect', () => {
+    player.emit('disconnect all');
+  });
 });
 
-//   socket.on('client connect', (payload) => {
-//     players.push(payload.socketid);
-//   });
-
-
-
-//   socket.on('game end', () => {
-//     socket.emit('forceDisconnect');
-//   });
-
-//   socket.on('disconnect', (payload) => {
-//     players = players.sort((player) => {
-//       player !== payload.player;
-//     });
-//   });
-// });
+// EOF
