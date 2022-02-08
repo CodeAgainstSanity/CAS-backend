@@ -9,10 +9,9 @@
   "description": "Seattle-code-401d45: Scott Lease, Keian Anthony, Emily Landers, Andrew Enyeart,",
   "version": "1.0.0",
   "main": "index.js",
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node src/server.js"
   },
   "repository": {
     "type": "git",

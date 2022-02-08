@@ -1,56 +1,75 @@
 'use strict';
 
-require('dotenv').config();
+// ================ Server Initialization ================
+
 const server = require('../index.js');
-
 const CAS = server.of('/CAS');
+
+// ================ IMPORTS ================
+
+// dotenv wont work here unless relative path to .env is provided... for some reason... but it works so dont break it >:(
+require('dotenv').config({ path: '../.env' });
 const mongoose = require('mongoose');
-
-// mongoose.connect(process.env.MONGODB_URI);
-// const db = mongoose.connection;
-const { WhiteCards, BlackCards } = require('./schema/cards.js');
+const { WhiteDeckModel, BlackDeckModel } = require('./schema/cards.js');
+const Player = require('./callbacks/Player.js');
 const shuffle = require('./callbacks/shuffle.js');
+const { sampleWhite, sampleBlack } = require('./sampleCardData/sampleData.js');
 
-/*
-  let blackCards = { BlackCards: ["Prompt 1", "Prompt 2", "Prompt 3"] };
-  let whiteCards = {
-    WhiteCards: [
-      '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-      '10', '11', '12', '13', '14', '15', '16', '17', '18', '19',
-      '20', '21', '22', '23', '24', '25', '26', '27', '28', '29',
-      '30', '31', '32', '33', '34', '35', '36', '37', '38', '39',
-      '40', '41', '42', '43', '44', '45', '46', '47', '48', '49',
-      '50', '51', '52', '53', '54', '55', '56', '57', '58', '59',
-      '60', '61', '62', '63', '64', '65', '66', '67', '68', '69',
-      '70', '71', '72', '73', '74', '75', '76', '77', '78', '79',
-      '80', '81', '82', '83', '84', '85', '86', '87', '88', '89',
-      '90', '91', '92', '93', '94', '95', '96', '97', '98', '99'
-    ]
-  };
-*/
-console.log('welcome to serverland');
+// ================ DATABASE CONNECTION ================
+
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
+const db = mongoose.connection;
+
+db.once('open', function () {
+  console.log('Database connected!');
+
+  WhiteDeckModel.find({})
+    .then(results => {
+      if (results.length === 0) {
+        const whiteDeck = new WhiteDeckModel({
+          Deck: 'White',
+          Cards: sampleWhite
+        });
+        whiteDeck.save();
+      }
+    });
+
+  BlackDeckModel.find({})
+    .then(results => {
+      if (results.length === 0) {
+        const blackDeck = new BlackDeckModel({
+          Deck: 'Black',
+          Cards: sampleBlack
+        });
+        blackDeck.save();
+      }
+    });
+
+});
+
+// ================ GLOBAL VARS ================
+
 let whiteDeck, blackDeck;
 let cardSubmissions = [];
 let players = [];
-class Player {
-  constructor(socketId) {
-    this.socketId = socketId;
-    this.points = 0;
-  }
-}
+
+// ================ Client Connection ================
 
 CAS.on('connection', async (socket) => {
-  // socket.on('join', )
-  console.log(`Successfully connected to ${socket.id}`);
-  socket.emit('new player joined', socket.id) // TEST should this be a player object instead?
+  // We can assign each socket.id to a name here??? Up to yall
+  // Maybe stretch goal is player inputs their own name
+  socket.broadcast.emit('new player joined', socket.id);
   players.push(new Player(socket.id));
   if (players.length === 4) {
-    assignCzar();
-    // randomize deck
-    whiteDeck = await WhiteCards.find( {} ); // await pull decks from DB
+    whiteDeck = await WhiteDeckModel.find({});
+    blackDeck = await BlackDeckModel.find({});
     whiteDeck = shuffle(whiteDeck.WhiteCards);
-    blackDeck = await  BlackCards.find( {} ); // await pull decks from DB
     blackDeck = shuffle(blackDeck.BlackCards);
+    console.log(whiteDeck, blackDeck);
     dealCards();
   }
 
@@ -100,26 +119,35 @@ CAS.on('connection', async (socket) => {
     socket.emit('Round Starting in 5 seconds!')
     setTimeout(startRound(), 5000)
   });
-  
+
+  // Functions need to be in the 'connection' event block, or 'socket' is unknown
+  function dealCards() {
+    players.forEach((player, idx) => {
+      //   pop 7 cards from white stack, 
+      let handOfCards = [];
+      while (handOfCards.length < 7) {
+        handOfCards.push(whiteDeck.pop());
+      }
+      //   EMIT array of cards to player
+      socket.to(player[idx].socketId).emit('hand of white cards', { handOfCards });
+    });
+  }
+
+  // Assigns next person in queue as the Czar, and updates the queue
+  function assignCzar() {
+    let tempPlayer = players.shift();
+    players.push(tempPlayer);
+    tempPlayer = players[0];
+    socket.to(tempPlayer).emit('Czar', 'You are the new Card Czar');
+  }
+
+  function startRound() {
+    cardSubmissions = [];
+    // Pulls card off the top of the black card deck
+    let card = blackDeck.pop();
+    // Sends card with the 'blackCard' event
+    socket.emit('blackCard', { card });
+  };
 });
 
-function dealCards() {
-  players.forEach((player, idx) => {
-    //   pop 7 cards from white stack, 
-    let handOfCards = [];
-    while (handOfCards.length < 7) {
-      handOfCards.push(whiteDeck.pop());
-    }
-    //   EMIT array of cards to player
-    socket.to(player[idx].socketId).emit('hand of white cards', { handOfCards });
-  });
-}
-
-function startRound() {
-  let cardSubmissions = []
-  socket.emit(blackCard)
-  setTimeout('card submissions', 30000)
-};
-
-
-// export start function to index.js to be run
+// CHANGE START SCRIPT TO SERVER.JS INSTEAD OF INDEX.JS & EVERYTHING JUST WORKS c:
