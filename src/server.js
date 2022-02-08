@@ -7,7 +7,6 @@ const CAS = server.of('/CAS');
 
 // ================ IMPORTS ================
 
-// dotenv wont work here unless relative path to .env is provided... for some reason... but it works so dont break it >:(
 require('dotenv').config({ path: '../.env' });
 const mongoose = require('mongoose');
 const { WhiteDeckModel, BlackDeckModel } = require('./schema/cards.js');
@@ -62,8 +61,9 @@ let players = [];
 CAS.on('connection', async (socket) => {
   // We can assign each socket.id to a name here??? Up to yall
   // Maybe stretch goal is player inputs their own name
-  socket.broadcast.emit('new player joined', socket.id); // alerts players waiting when new player joins
   players.push(new Player(socket.id));
+  socket.emit('connection successful', {userName: players[players.length-1].userName});
+  socket.broadcast.emit('new player joined', players[players.length-1].userName); // alerts players waiting when new player joins
   if (players.length === 4) {
     firstCzar();
     whiteDeck = await WhiteDeckModel.find({});
@@ -73,7 +73,6 @@ CAS.on('connection', async (socket) => {
     whiteDeck = shuffle(whiteDeck);
     blackDeck = shuffle(blackDeck);
     dealCards();
-    // Need to start round here
   }
 
   socket.on('card submission', (payload) => {
@@ -89,12 +88,10 @@ CAS.on('connection', async (socket) => {
     }
   });
 
-  // payload = {roundWinner: 'string'}
   // winnerId can be added by sending back the card string attached to the corresponding client id
   socket.on('czar selection', (payload) => {
     // Checks if selection is coming from the current card czar
     if (socket.id === players[0].socketId) {
-      // Check indexof stripped array for roundwinner, use that index pos in the non-stripped array to add a point for that socketid (in players arr)
 
       let winnerObj = cardSubmissions.filter((element) => {
         return element.card === payload.roundWinner;
@@ -103,7 +100,6 @@ CAS.on('connection', async (socket) => {
       for (let ii = 0; ii < players.length; ii++) {
         if (players[ii].socketId === winnerObj[0].socketId) {
           players[ii].points += 1;
-          console.log(players);
 
           if (players[ii].points < 3) {
             cardSubmissions = [];
@@ -118,21 +114,12 @@ CAS.on('connection', async (socket) => {
             assignCzar();
 
           } else {
-            CAS.emit('game winner', { winner: players[ii].socketId });
+            CAS.emit('game winner', { winner: players[ii].userName });
           }
         }
       }
     }
   });
-
-  // Winner emits this event from each round
-  // CAS.on('another round', () => {  // TEST server listens to itself?
-  //   for (ii = 1; ii < players.length - 1; ii++) {
-  //     let tempCard = whiteDeck.pop();
-  //     CAS.to(players[ii]).emit('draw white', { card: tempCard });
-  //   }
-  //   assignCzar();
-  // });
 
   // Just the czar emits this (client side) after receiving black card
   socket.on('letsGo', () => {
@@ -162,7 +149,6 @@ CAS.on('connection', async (socket) => {
 
   // Assigns next person in queue as the Czar, and updates the queue
   function assignCzar() {
-    console.log('Choosing new czar');
     let tempPlayer = players.shift();
     players.push(tempPlayer);
     tempPlayer = players[0].socketId;
@@ -178,4 +164,4 @@ CAS.on('connection', async (socket) => {
   };
 });
 
-// CHANGE START SCRIPT TO SERVER.JS INSTEAD OF INDEX.JS & EVERYTHING JUST WORKS c:
+// EOF
