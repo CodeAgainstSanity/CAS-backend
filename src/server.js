@@ -62,7 +62,7 @@ let players = [];
 CAS.on('connection', async (socket) => {
   // We can assign each socket.id to a name here??? Up to yall
   // Maybe stretch goal is player inputs their own name
-  // CAS.emit('new player joined', socket.id);
+  socket.broadcast.emit('new player joined', socket.id); // alerts players waiting when new player joins
   players.push(new Player(socket.id));
   if (players.length === 4) {
     firstCzar();
@@ -77,24 +77,32 @@ CAS.on('connection', async (socket) => {
   }
 
   socket.on('card submission', (payload) => {
+    let czarOptions = [];
     let tempObj = { card: payload.card, socketId: socket.id };
     // Card submissions var gets purged on new round, so dont worry about pushing here
     cardSubmissions.push(tempObj);
+
     // If all 3 players submitted a choice, card submissions arr.length === 3
     if (cardSubmissions.length === 3) {
       shuffle(cardSubmissions);
-      socket.emit('card submissions', { cardSubmissions: cardSubmissions });
+      czarOptions = cardSubmissions.map(card => card.card); // strips player id out
+      CAS.emit('card submissions', { czarOptions });
     }
   });
 
-  // payload = {socketId: 'id', winnerId: 'id'} socketId coming from person selecting a choice, winnerId coming from the choice made
+  // payload = {roundWinner: 'string'}
   // winnerId can be added by sending back the card string attached to the corresponding client id
   socket.on('czar selection', (payload) => {
     // Checks if selection is coming from the current card czar
-    if (payload.socketId === players[0]) {
-      // Loops through player queue and adds a point to the corresponding winner's points
-      for (let ii = 0; ii < players.length - 1; ii++) {
-        if (players[ii].socketId === payload.winnerId) {
+    if (socket.id === players[0].socketId) {
+      // Check indexof stripped array for roundwinner, use that index pos in the non-stripped array to add a point for that socketid (in players arr)
+
+      let winnerObj = cardSubmissions.filter((element) => {
+        return element.card === payload.roundWinner;
+      });
+
+      for (let ii = 0; ii < players.length; ii++) {
+        if (players[ii].socketId === winnerObj.socketId) {
           players[ii].points += 1;
           if (players[ii].points < 3) {
             cardSubmissions = [];
@@ -107,21 +115,21 @@ CAS.on('connection', async (socket) => {
     }
   });
 
+  // Winner emits this event from each round
   CAS.on('another round', () => {
-    for (i = 1; i < playerQueue.length; i++) drawCard(socketid)
-    playerQueue.push(playerQueue.shift())
-    assignCzar()
-  });
-
-  socket.on('draw white', () => {
-    let tempWhite = whiteCards.WhiteCards.pop();
-    socket.emit('draw white', { card: tempWhite });
+    for (ii = 1; ii < players.length - 1; ii++) {
+      let tempCard = whiteDeck.pop();
+      CAS.to(players[ii]).emit('draw white', { card: tempCard });
+    }
+    assignCzar();
   });
 
   // Just the czar emits this (client side) after receiving black card
   socket.on('letsGo', () => {
-    CAS.emit('Round Starting in 5 seconds!');
-    setTimeout(() => { startRound() }, 5000);
+    if (socket.id === players[0].socketId) { //verifies that only czar can trigger 'letsGo'
+      CAS.emit('Round Starting in 5 seconds!');
+      setTimeout(() => { startRound() }, 5000);
+    }
   });
 
   // Functions need to be in the 'connection' event block, or 'socket' is unknown
@@ -133,9 +141,7 @@ CAS.on('connection', async (socket) => {
         handOfCards.push(whiteDeck.pop());
       }
       //   EMIT array of cards to player
-      console.log(player.socketId);
       CAS.to(player.socketId).emit('hand of white cards', { handOfCards });
-      // socket.to(player.socketId).emit('hand of white cards', { handOfCards });
     });
   }
 
