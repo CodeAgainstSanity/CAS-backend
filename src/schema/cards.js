@@ -1,17 +1,17 @@
-'use strict'
+'use strict';
 
 const mongoose = require('mongoose');
-const { Schema } = mongoose;
-const DeckSchema = new Schema ({
-  deck: Array,
-})
-const WhiteCards = mongoose.model('WhiteCards', DeckSchema);
-const BlackCards = mongoose.model('BlackCards', DeckSchema);
+const { Schema, model } = mongoose;
 
-module.exports = {
-  WhiteCards,
-  BlackCards
-};
+const deckSchema = new Schema({
+  Deck: { type: String, required: true },
+  Cards: { type: Array, required: true }
+});
+
+const WhiteDeckModel = model('WhiteDeck', deckSchema);
+const BlackDeckModel = model('BlackDeck', deckSchema);
+
+module.exports = { WhiteDeckModel, BlackDeckModel };
 
 /*
 const cardSchema = newSchema ({
