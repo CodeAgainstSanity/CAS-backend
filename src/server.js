@@ -16,17 +16,16 @@ const CAS = server.of('/CAS');
 //           pop 7 cards from white stack, 
 //           EMIT array of cards to player 
   
-//   ON 'letsgo' :
-//     EMIT 'round starting in 5 seconds'
-//     setTimeout(startRound(), 5000)
+socket.on('letsGo', () => {
+    CAS.emit('Round Starting in 5 seconds!')
+    setTimeout(startRound(), 5000)
+});
 
-// startRound() {
-//   let cardSubmissions = []
-//   EMIT black card to all
-//         <!-- setTimeout( 
-//         EMIT to all 'card submissions'
-//           , 30000) -->
-// }
+function startRound(){
+ let cardSubmissions = []
+   CAS.emit(blackCard)
+    setTimeout('card submissions', 30000)
+};
 
 // ON 'card submission' :
 //   push to cardSubmissions array
@@ -42,10 +41,14 @@ const CAS = server.of('/CAS');
 //       EMIT 'game winner' payload: thisplayer 
 //       setTimeout('game end', 10000)
 
-// ON 'another round':
-//   for (i = 1; i<playerqueue.length; i++) drawCard(socketid)
-//   playerqueue.push(playerqueue.shift())
-//   assignCzar()
+CAS.on('another round', () => {
+    for (i = 1; i<playerQueue.length; i++) drawCard(socketid)
+    playerQueue.push(playerQueue.shift())
+    assignCzar()
+});
+
+
+
 
 // drawCard(socketid) 
 //   pop one card from white stack
