@@ -62,7 +62,7 @@ let players = [];
 CAS.on('connection', async (socket) => {
   // We can assign each socket.id to a name here??? Up to yall
   // Maybe stretch goal is player inputs their own name
-  socket.broadcast.emit('new player joined', socket.id);
+  // CAS.emit('new player joined', socket.id);
   players.push(new Player(socket.id));
   if (players.length === 4) {
     firstCzar();
@@ -107,7 +107,7 @@ CAS.on('connection', async (socket) => {
     }
   });
 
-  socket.on('another round', () => {
+  CAS.on('another round', () => {
     for (i = 1; i < playerQueue.length; i++) drawCard(socketid)
     playerQueue.push(playerQueue.shift())
     assignCzar()
@@ -118,9 +118,10 @@ CAS.on('connection', async (socket) => {
     socket.emit('draw white', { card: tempWhite });
   });
 
+  // Just the czar emits this (client side) after receiving black card
   socket.on('letsGo', () => {
-    socket.emit('Round Starting in 5 seconds!')
-    setTimeout(startRound(), 5000)
+    CAS.emit('Round Starting in 5 seconds!');
+    setTimeout(() => { startRound() }, 5000);
   });
 
   // Functions need to be in the 'connection' event block, or 'socket' is unknown
@@ -132,13 +133,15 @@ CAS.on('connection', async (socket) => {
         handOfCards.push(whiteDeck.pop());
       }
       //   EMIT array of cards to player
-      socket.to(player.socketId).emit('hand of white cards', { handOfCards });
+      console.log(player.socketId);
+      CAS.to(player.socketId).emit('hand of white cards', { handOfCards });
+      // socket.to(player.socketId).emit('hand of white cards', { handOfCards });
     });
   }
 
   // Alerts first person they are czar
   function firstCzar() {
-    socket.to(players[0].socketId).emit('Czar', 'You are the new Card Czar')
+    CAS.to(players[0].socketId).emit('Czar', 'You are the new Card Czar');
   }
 
   // Assigns next person in queue as the Czar, and updates the queue
@@ -146,7 +149,7 @@ CAS.on('connection', async (socket) => {
     let tempPlayer = players.shift();
     players.push(tempPlayer);
     tempPlayer = players[0].socketId;
-    socket.to(tempPlayer).emit('Czar', 'You are the new Card Czar');
+    CAS.to(tempPlayer).emit('Czar', 'You are the new Card Czar');
   }
 
   function startRound() {
@@ -154,7 +157,7 @@ CAS.on('connection', async (socket) => {
     // Pulls card off the top of the black card deck
     let card = blackDeck.pop();
     // Sends card with the 'blackCard' event
-    socket.emit('blackCard', { card });
+    CAS.emit('blackCard', { card });
   };
 });
 
