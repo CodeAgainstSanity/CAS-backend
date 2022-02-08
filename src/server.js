@@ -131,6 +131,7 @@ CAS.on('connection', async (socket) => {
 
   // Functions need to be in the 'connection' event block, or 'socket' is unknown
   function dealCards() {
+    console.log('inside dealCards()');
     players.forEach((player, idx) => {
       //   pop 7 cards from white stack, 
       let handOfCards = [];
