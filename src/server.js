@@ -7,6 +7,7 @@ const mongoose = require('mongoose')
 
 mongoose.connect(process.env.MONGODB_URI);
 const db = mongoose.connection;
+const { WhiteCards, BlackCards } = require('./schema/cards.js')
 const shuffle = require('./callbacks/shuffle.js');
 
 /*
@@ -38,14 +39,16 @@ class Player {
 }
 
 CAS.on('connection', (socket) => {
+  // socket.on('join', )
+  console.log(`Successfully connected to ${socket.id}`);
   socket.emit('new player joined', socket.id) // TEST should this be a player object instead?
   players.push(new Player(socket.id));
   if (players.length === 4) {
     assignCzar();
     // randomize deck
-    whiteDeck = await  // await pull decks from DB
+    whiteDeck = await WhiteCards.find( {} ); // await pull decks from DB
     whiteDeck = shuffle(whiteDeck.WhiteCards);
-    blackDeck = await  // await pull decks from DB
+    blackDeck = await  BlackCards.find( {} ); // await pull decks from DB
     blackDeck = shuffle(blackDeck.BlackCards);
     dealCards();
   }

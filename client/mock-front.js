@@ -10,7 +10,8 @@ let whiteCards = [];
 let blackCard = "";
 let czarAnswers = [];
 
-socket.on('connect', () => {
+socket.on('connect', (socket) => {
+  console.log("you are connected via", socket.id);
 
   socket.on('client connect', (payload) => {
     players.push(payload.socketid);

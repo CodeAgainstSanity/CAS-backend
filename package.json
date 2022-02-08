@@ -1,7 +1,28 @@
 {
   "dependencies": {
     "dotenv": "^16.0.0",
+    "mongoose": "^6.2.1",
     "socket.io": "^4.4.1",
     "socket.io-client": "^4.4.1"
-  }
+  },
+  "name": "cas-backend",
+  "description": "Seattle-code-401d45: Scott Lease, Keian Anthony, Emily Landers, Andrew Enyeart,",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CodeAgainstSanity/CAS-backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CodeAgainstSanity/CAS-backend/issues"
+  },
+  "homepage": "https://github.com/CodeAgainstSanity/CAS-backend#readme"
 }
