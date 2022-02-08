@@ -30,7 +30,7 @@ The rules of the game are fairly straightforward:
 ON 'connection' :
   EMIT 'new player joined', payload: socketid
   push socketid to queue
-    if playerqueue.length === 4 :
+    if players.length === 4 :
       assignCzar()
       await pull decks from DB
       randomize deck  
@@ -65,8 +65,8 @@ startRound() {
         setTimeout('game end', 10000)
   
   ON 'another round':
-    for (i = 1; i<playerqueue.length; i++) drawCard(socketid)
-    playerqueue.push(playerqueue.shift())
+    for (i = 1; i<players.length; i++) drawCard(socketid)
+    players.push(players.shift())
     assignCzar()
 }
 
@@ -75,7 +75,7 @@ drawCard(socketid)
   EMIT newcard to socketid
 
 assignCzar()
-  assign czar to playerqueue[0]
+  assign czar to players[0]
   EMIT to czar socketid 'youareczar'
 
 ```
