@@ -3,6 +3,9 @@ const socketio = require('socket.io-client');
 let HOST = 'http://localhost:3000';
 let namespace = '/CAS';
 const player = socketio.connect(`${HOST}${namespace}`);
+const readline = require('readline');
+
+const rl = readline.createInterface(process.stdin, process.stdout);
 
 let players = [];
 let whiteCards = [];
@@ -11,7 +14,20 @@ let czarOptions = [];
 let isCzar = false;
 
 player.on('connect', (socket) => {
-  console.log('connection successful ', player.id);
+  rl.setPrompt(`What is your name? `);
+  rl.prompt();
+  rl.on('line', (name) => {
+      console.log(`name received by the user: ${name}`);
+      rl.close();
+      console.log('connection successful ', player.id);
+  })
+
+//  let name = await rl.question('what is your name?', (name) => {
+//     console.log(`Hi, ${name}. You are now connected!`);
+//     rl.close();
+//   });
+
+
   player.on('new player joined', (payload) => {
     console.log('New Player Joined:', payload);
   });
@@ -46,6 +62,7 @@ player.on('connect', (socket) => {
     // Client makes choice from their white cards, sends to server, which sends array of 3 items to czar
     if (!isCzar) {
       let choice = whiteCards.shift(); // TODO change to user input
+
       console.log('I submit:', choice);
       player.emit('card submission', { card: choice, socketId: player.id });
     }
