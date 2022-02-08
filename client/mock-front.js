@@ -11,7 +11,9 @@ let czarOptions = [];
 let isCzar = false;
 
 player.on('connect', (socket) => {
-  console.log('connection successful ', player.id);
+  player.on('connection successful', (payload) => {
+    console.log('Connection successful, your name is:', payload.userName);
+  });
   player.on('new player joined', (payload) => {
     console.log('New Player Joined:', payload);
   });
@@ -45,38 +47,31 @@ player.on('connect', (socket) => {
     console.log(blackcard);
     // Client makes choice from their white cards, sends to server, which sends array of 3 items to czar
     if (!isCzar) {
-      let choice = whiteCards.shift(); // TODO change to user input
+      let choice = whiteCards.shift(); 
       console.log('I submit:', choice);
       player.emit('card submission', { card: choice, socketId: player.id });
     }
+  });
+
+  player.on('show all choice', (payload) => {
+    console.log('The winning card:', payload.winningCard);
   });
 
   player.on('card submissions', (payload) => {
     czarOptions = payload.czarOptions;
     if (isCzar) {
       console.log('choice:', czarOptions[0]);
-      player.emit('czar selection', { roundWinner: czarOptions[0] }); // TODO change to user input
+      player.emit('czar selection', { roundWinner: czarOptions[0] });
     }
   });
 
   player.on('game winner', (payload) => {
     console.log('Congratulations, the game winner is:', payload.winner);
   });
+
+  player.on('pls disconnect', () => {
+    player.emit('disconnect all');
+  });
 });
 
-//   socket.on('client connect', (payload) => {
-//     players.push(payload.socketid);
-//   });
-
-
-
-//   socket.on('game end', () => {
-//     socket.emit('forceDisconnect');
-//   });
-
-//   socket.on('disconnect', (payload) => {
-//     players = players.sort((player) => {
-//       player !== payload.player;
-//     });
-//   });
-// });
+// EOF

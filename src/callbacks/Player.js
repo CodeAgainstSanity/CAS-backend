@@ -40,8 +40,8 @@ function name(){
   let first = nameArray[Math.floor(Math.random() * (nameArray.length - 1))];
   let last = nameArray[Math.floor(Math.random() * (nameArray.length - 1))];
   let userName = first + ' ' + last;
-  if(first === last){
-    name()
+  if(first === last || first === null || last === null){
+    return name()
   } else {
   return userName;
   }

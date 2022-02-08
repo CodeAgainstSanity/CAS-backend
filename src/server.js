@@ -93,6 +93,8 @@ CAS.on('connection', async (socket) => {
     // Checks if selection is coming from the current card czar
     if (socket.id === players[0].socketId) {
 
+      socket.broadcast.emit('show all choice', {winningCard: payload.roundWinner});
+
       let winnerObj = cardSubmissions.filter((element) => {
         return element.card === payload.roundWinner;
       });
@@ -115,19 +117,30 @@ CAS.on('connection', async (socket) => {
 
           } else {
             CAS.emit('game winner', { winner: players[ii].userName });
+            // Force disconnect all sockets connected
+            socket.emit('pls disconnect');
           }
         }
       }
     }
   });
-
-  // Just the czar emits this (client side) after receiving black card
-  socket.on('letsGo', () => {
-    if (socket.id === players[0].socketId) { //verifies that only czar can trigger 'letsGo'
-      CAS.emit('Round Starting in 5 seconds!');
-      setTimeout(() => { startRound() }, 5000);
-    }
+  
+  // Set up event listener for client disconnect then remove said client socket id from player queue
+  socket.on('disconnect all', () => {
+    CAS.sockets.forEach((socket) => {
+      // If given socket id is exist in list of all sockets, kill it
+      socket.disconnect(true);
+    });
+    players = [];
   });
+  
+    // Just the czar emits this (client side) after receiving black card
+    socket.on('letsGo', () => {
+      if (socket.id === players[0].socketId) { //verifies that only czar can trigger 'letsGo'
+        CAS.emit('Round Starting in 5 seconds!');
+        setTimeout(() => { startRound() }, 5000);
+      }
+    });
 
   // Functions need to be in the 'connection' event block, or 'socket' is unknown
   function dealCards() {
