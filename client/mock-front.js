@@ -14,18 +14,13 @@ let czarOptions = [];
 let isCzar = false;
 
 player.on('connect', (socket) => {
-  rl.setPrompt(`What is your name? `);
-  rl.prompt();
-  rl.on('line', (name) => {
-      console.log(`name received by the user: ${name}`);
-      rl.close();
-      console.log('connection successful ', player.id);
-  })
-
-//  let name = await rl.question('what is your name?', (name) => {
-//     console.log(`Hi, ${name}. You are now connected!`);
-//     rl.close();
-//   });
+  // rl.setPrompt(`What is your name? `);
+  // rl.prompt();
+  // rl.on('line', (name) => {
+  //   console.log(`name received by the user: ${name}`);
+  //   rl.close();
+  // })
+  console.log('connection successful ', player.id);
 
 
   player.on('new player joined', (payload) => {
@@ -58,20 +53,27 @@ player.on('connect', (socket) => {
 
   player.on('blackCard', (payload) => {
     blackcard = payload.card;
-    console.log(blackcard);
+    console.log('Here is the prompt: ', blackcard);
     // Client makes choice from their white cards, sends to server, which sends array of 3 items to czar
     if (!isCzar) {
-      let choice = whiteCards.shift(); // TODO change to user input
-
-      console.log('I submit:', choice);
-      player.emit('card submission', { card: choice, socketId: player.id });
+      // display the options line by line with index number at front as "[ 0 ]"
+      whiteCards.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
+      
+      rl.setPrompt(`Enter the number of the white card that you want to submit: `);
+      rl.prompt();
+      rl.on('line', (cardChoice) => {
+        cardChoice = whiteCards[cardChoice];
+        console.log(`You chose: "${cardChoice}"`);
+        rl.close();
+        player.emit('card submission', { card: cardChoice, socketId: player.id });
+      })
     }
   });
 
   player.on('card submissions', (payload) => {
     czarOptions = payload.czarOptions;
     if (isCzar) {
-      console.log('choice:', czarOptions[0]);
+      console.log(`You chose ${czarOptions[0]} as the best answer`);
       player.emit('czar selection', { roundWinner: czarOptions[0] }); // TODO change to user input
     }
   });
