@@ -34,7 +34,7 @@ ON 'connection' :
       assignCzar()
       await pull decks from DB
       randomize deck  
-      dealCards() : 
+      dealCards : 
         foreach player in queue:
           pop 7 cards from white stack, 
           EMIT array of cards to player 

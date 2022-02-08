@@ -37,7 +37,7 @@ class Player {
   }
 }
 
-CAS.on('connection', (socket) => { 
+CAS.on('connection', (socket) => {
   socket.emit('new player joined', socket.id) // TEST should this be a player object instead?
   players.push(new Player(socket.id));
   if (players.length === 4) {
@@ -60,7 +60,7 @@ CAS.on('connection', (socket) => {
       socket.emit('card submissions', { cardSubmissions: cardSubmissions });
     }
   });
-  
+
   // payload = {socketId: 'id', winnerId: 'id'} socketId coming from person selecting a choice, winnerId coming from the choice made
   // winnerId can be added by sending back the card string attached to the corresponding client id
   socket.on('czar selection', (payload) => {
@@ -80,16 +80,23 @@ CAS.on('connection', (socket) => {
       }
     }
   });
-  
-  // ON 'another round':
-  //   for (i = 1; i<players.length; i++) drawCard(socketid)
-  //   players.push(players.shift())
-  //   assignCzar()
-  
+
+  socket.on('another round', () => {
+    for (i = 1; i < playerQueue.length; i++) drawCard(socketid)
+    playerQueue.push(playerQueue.shift())
+    assignCzar()
+  });
+
   socket.on('draw white', () => {
     let tempWhite = whiteCards.WhiteCards.pop();
     socket.emit('draw white', { card: tempWhite });
   });
+
+  socket.on('letsGo', () => {
+    socket.emit('Round Starting in 5 seconds!')
+    setTimeout(startRound(), 5000)
+  });
+  
 });
 
 function dealCards() {
@@ -100,37 +107,15 @@ function dealCards() {
       handOfCards.push(whiteDeck.pop());
     }
     //   EMIT array of cards to player
-    socket.to(player[idx].socketId).emit('hand of white cards', {handOfCards});
+    socket.to(player[idx].socketId).emit('hand of white cards', { handOfCards });
   });
 }
 
+function startRound() {
+  let cardSubmissions = []
+  socket.emit(blackCard)
+  setTimeout('card submissions', 30000)
+};
 
 
-
-// ON 'connection' :
-//   EMIT 'new player joined', payload: socketid
-//   push socketid to queue
-//     if players.length === 4 :
-//       assignCzar()
-//       await pull decks from DB
-//       randomize deck  
-//       dealCards : 
-//         foreach player in queue:
-//           pop 7 cards from white stack, 
-//           EMIT array of cards to player 
-
-//   ON 'letsgo' :
-//     EMIT 'round starting in 5 seconds'
-//     setTimeout(startRound(), 5000)
-
-// startRound() {
-//   let cardSubmissions = []
-//   EMIT black card to all
-//         <!-- setTimeout( 
-//         EMIT to all 'card submissions'
-//           , 30000) -->
-// }
-
-
-
-// // export start function to index.js to be run
+// export start function to index.js to be run
