@@ -135,10 +135,12 @@ CAS.on('connection', async (socket) => {
           } else {
             CAS.emit('game winner', { winner: players[ii].userName });
             // Force disconnect all sockets connected
-            CAS.sockets.forEach((socket) => {
+            CAS.disconnectSockets();
+            // CAS.sockets.forEach((socket) => {
+
               // If given socket id is exist in list of all sockets, kill it
-              socket.disconnect(true);
-            });
+              // socket.disconnect(true);
+            // });
             players = [];
           }
         }
