@@ -85,8 +85,9 @@ CAS.on('connection', async (socket) => {
 
   socket.on('card submission', (payload) => {
     let czarOptions = [];
+    console.log(`\nRECEIVED card submission: \n"${payload.card}"\n`);
     let tempObj = { card: payload.card, socketId: socket.id };
-    // Card submissions var gets purged on new round, so dont worry about pushing here
+    // Card submissions var gets purged on new round
     cardSubmissions.push(tempObj);
     // If all players submitted a choice, card submissions arr.length === totalPlayers - 1
     if (cardSubmissions.length === totalPlayers - 1) {
@@ -102,7 +103,7 @@ CAS.on('connection', async (socket) => {
     if (socket.id === players[0].socketId) {
 
       let winnerObj = cardSubmissions.filter((element) => {
-        return element.card === payload.roundWinner; // TEST does this need to be payload.roundWinner.card?
+        return element.card === payload.roundWinner; 
       });
 
       let roundWinnerUsername = "";
@@ -113,7 +114,7 @@ CAS.on('connection', async (socket) => {
         }
       }
 
-      socket.broadcast.emit('show all choice', { winningCard: payload.roundWinner, roundWinnerUsername });
+      socket.broadcast.emit('broadcast round winner', { winningCard: payload.roundWinner, roundWinnerUsername });
 
       for (let ii = 0; ii < players.length; ii++) {
         if (players[ii].socketId === winnerObj[0].socketId) {
@@ -132,21 +133,17 @@ CAS.on('connection', async (socket) => {
           } else {
             CAS.emit('game winner', { winner: players[ii].userName });
             // Force disconnect all sockets connected
-            socket.emit('pls disconnect');
+            CAS.sockets.forEach((socket) => {
+              // If given socket id is exist in list of all sockets, kill it
+              socket.disconnect(true);
+            });
+            players = [];
           }
         }
       }
     }
   });
 
-  // Set up event listener for client disconnect then remove said client socket id from player queue
-  socket.on('disconnect all', () => {
-    CAS.sockets.forEach((socket) => {
-      // If given socket id is exist in list of all sockets, kill it
-      socket.disconnect(true);
-    });
-    players = [];
-  });
 
   // Just the czar emits this (client side) after receiving black card
   socket.on('letsGo', () => {
@@ -230,7 +227,57 @@ CAS.on('connection', async (socket) => {
 '-.__ ',  ''   .  _.>----''.  _  __  / \n
    .'        /"'          |  "'   '_ \n
   /_|.-'\ ,".             '.''__'-( \ \n
-    / ,"'"\,'               '/  '-.|"`
+
+    / ,"'"\,'               '/  '-.|"` 
+    );
+  }
+
+  // Assigns next person in queue as the Czar, and updates the queue
+  function assignCzar() {
+    let formerCzar = players.shift();
+    players.push(formerCzar);
+    let newCzar = players[0].socketId;
+    CAS.to(newCzar).emit('Czar', `YOU are the new CARD CZAR
+      ."-,.__ \n
+      '.     '.  , \n
+   .--'  .._,'"-' ''. \n
+  .    .'         '' \n
+  ''.   /          ,'\n
+    ''  '--.   ,-"'\n
+     '"'   |  \ \n
+        -. \, | \n
+         '--Y.'      ___. \n
+              \     L._, \ \n
+    _.,        '.   <  <\  \n              _
+  ,' '           '', '.   | \            ( ' \n
+  ../, '.            '  |    .\''.           \ \_ \n
+  ,' ,..  .           _.,'    ||\l            )  '". \n
+  , ,'   \           ,'.-.'-._,'  |           .  _._'. \n
+  ,' /      \ \        '' ' '--/   | \          / /   ..\ \n
+  .'  /        \ .         |\__ - _ ,' '        / /     '.'. \n
+  |  '          ..         '-...-"  |  '-'      / /        . '. \n
+  | /           |L__           |    |          / /          '. '. \n
+  , /            .   .          |    |         / /             ' ' \n
+  / /          ,. ,'._ '-_       |    |  _   ,-' /               ' \ \n
+  / .           \"'_/. '-_ \_,.  ,'    +-' '-'  _,        ..,-.    \'. \n
+  .  '         .-f    ,'   '    '.       \__.---'     _   .'   '     \ \ \n
+  ' /          '.'    l     .' /          \..      ,_|/   '.  ,''     L' \n
+  |'      _.-""' '.    \ _,'  '            \ '.___'.'"'-.  , |   |    | \ \n
+  ||    ,'      '. '.   '       _,...._        '  |    '/ '  |   '     .| \n
+  ||  ,'          '. ;.,.---' ,'       '.   '.. '-'  .-' /_ .'    ;_   || \n
+  || '              V      / /           '   | '   ,'   ,' '.    !  '. || \n
+  ||/            _,-------7 '              . |  '-'    l         /    '|| \n
+  . |          ,' .-   ,' ||               | .-.        '.      .'     || \n
+  ''        ,'    '".'    |               |    '.        '. -.'       '' \n
+  /      ,'      |               |,'    \-.._,.'/' \n
+  .     /        .               .       \    .'' \n
+  .'.    |         '.             /         :_,'.' \n
+  \ '...\   _     ,'-.        .'         /_.-' \n
+  '-.__ ',  ''   .  _.>----''.  _  __  / \n
+     .'        /"'          |  "'   '_ \n
+    /_|.-'\ ,".             '.''__'-( \ \n
+      / ,"'"\,'               '/  '-.|"`
+    );
   }
 
   function startRound() {
