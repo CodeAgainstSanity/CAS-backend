@@ -3,6 +3,9 @@ const socketio = require('socket.io-client');
 let HOST = 'http://localhost:3000';
 let namespace = '/CAS';
 const player = socketio.connect(`${HOST}${namespace}`);
+const readline = require('readline');
+
+const rl = readline.createInterface(process.stdin, process.stdout);
 
 let players = [];
 let whiteCards = [];
@@ -44,12 +47,20 @@ player.on('connect', (socket) => {
 
   player.on('blackCard', (payload) => {
     blackcard = payload.card;
-    console.log(blackcard);
+    console.log('Here is the prompt: ', blackcard);
     // Client makes choice from their white cards, sends to server, which sends array of 3 items to czar
     if (!isCzar) {
-      let choice = whiteCards.shift(); 
-      console.log('I submit:', choice);
-      player.emit('card submission', { card: choice, socketId: player.id });
+      // display the options line by line with index number at front as "[ 0 ]"
+      whiteCards.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
+
+      rl.setPrompt(`Enter the number of the white card that you want to submit: `);
+      rl.prompt();
+      rl.on('line', (cardChoiceIdx) => {
+        let cardChoice = whiteCards.splice(cardChoiceIdx, 1)[0];
+        console.log(`You chose: "${cardChoice}"`);
+        rl.close();
+        player.emit('card submission', { card: cardChoice, socketId: player.id });
+      });
     }
   });
 
@@ -60,8 +71,23 @@ player.on('connect', (socket) => {
   player.on('card submissions', (payload) => {
     czarOptions = payload.czarOptions;
     if (isCzar) {
-      console.log('choice:', czarOptions[0]);
-      player.emit('czar selection', { roundWinner: czarOptions[0] });
+
+      czarOptions.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
+
+      rl.setPrompt(`Enter the number of your favorite response: `);
+      rl.prompt();
+      rl.on('line', (cardChoiceIdx) => {
+        let cardChoice = czarOptions.splice(cardChoiceIdx, 1)[0];
+        console.log(`You chose "${cardChoice}" as the best answer`);
+        player.emit('czar selection', { roundWinner: cardChoice });
+      })
+      
+      
+      // console.log(`You chose: "${cardChoice}"`);
+      // rl.close();
+      // player.emit('card submission', { card: cardChoice, socketId: player.id });
+
+
     }
   });
 
