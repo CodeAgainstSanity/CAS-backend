@@ -36,7 +36,7 @@ player.on('connect', (socket) => {
 
   player.on('another round', () => {
     isCzar = false;
-    // console.log('Another round is starting...');
+    console.log('The Card Czar Charizard has been passed along to the next player...');
   });
 
   player.on('Round Starting in 3 seconds!', () => {
@@ -45,8 +45,10 @@ player.on('connect', (socket) => {
   });
 
   player.on('draw white', (payload) => {
-    console.log('dealt another white card');
+    console.log(`whiteCards.length before draw: ${whiteCards.length}`)
+    console.log(`dealt another white card: \n"${payload.card}"`);
     whiteCards.push(payload.card);
+    console.log(`whiteCards.length after draw: ${whiteCards.length}`)
   });
 
   player.on('blackCard', (payload) => {
@@ -55,7 +57,7 @@ player.on('connect', (socket) => {
     console.log(`HERE IS THE PROMPT:`);
     lineBreak();
     console.log(`"${blackcard}"`);
-    // Client makes choice from their white cards, sends to server, which sends array of 3 items to czar
+    // Client makes choice from their white cards, sends to server, which sends array of items to czar
     if (!isCzar) {
       lineBreak();
       console.log('Your current hand of cards...')
@@ -101,6 +103,7 @@ player.on('connect', (socket) => {
         horizLine();
         console.log(`You chose "${cardChoice}" as the winner of this round`);
         player.emit('czar selection', { roundWinner: cardChoice });
+        czarOptions = []       
       })
     } else { // for all other players
       horizLine();
@@ -124,3 +127,11 @@ player.on('connect', (socket) => {
 });
 
 // EOF
+/* Bug possibilities:
+1. 'cardChoice' overlapping scope?
+2. on server, not updating socketId associate with Czar
+3. 'draw white' event not triggering on client
+
+
+
+*/

@@ -124,10 +124,10 @@ CAS.on('connection', async (socket) => {
 
             CAS.emit('another round');
 
-            for (ii = 1; ii < players.length - 1; ii++) { // TEST I don't think this should be length - 1
+            for (ii = 1; ii < players.length; ii++) { // TEST I don't think this should be length - 1
               let tempCard = whiteDeck.pop();
-              console.log('dealing one more card', tempCard);
-              CAS.to(players[ii]).emit('draw white', { card: tempCard });
+              console.log(`dealing one more card: \n"${tempCard}"\nto ${players[ii].userName}`);
+              CAS.to(players[ii].socketId).emit('draw white', { card: tempCard });
             }  // TODO make this a callback function called dealOneCard()
 
             assignCzar();
