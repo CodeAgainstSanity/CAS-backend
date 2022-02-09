@@ -137,8 +137,8 @@ CAS.on('connection', async (socket) => {
     // Just the czar emits this (client side) after receiving black card
     socket.on('letsGo', () => {
       if (socket.id === players[0].socketId) { //verifies that only czar can trigger 'letsGo'
-        CAS.emit('Round Starting in 5 seconds!');
-        setTimeout(() => { startRound() }, 5000);
+        CAS.emit('Round Starting in 3 seconds!');
+        setTimeout(() => { startRound() }, 3000);
       }
     });
 
