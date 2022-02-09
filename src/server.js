@@ -93,25 +93,25 @@ CAS.on('connection', async (socket) => {
     // Checks if selection is coming from the current card czar
     if (socket.id === players[0].socketId) {
 
-      socket.broadcast.emit('show all choice', {winningCard: payload.roundWinner});
+      socket.broadcast.emit('show all choice', {winningCard: payload.roundWinner}); // { winningCard: cardChoice }
 
       let winnerObj = cardSubmissions.filter((element) => {
-        return element.card === payload.roundWinner;
+        return element.card === payload.roundWinner; // TEST does this need to be payload.roundWinner.card?
       });
 
-      for (let ii = 0; ii < players.length; ii++) {
+      for (let ii = 0; ii < players.length; ii++) { // iterate through players array to find which player's id matches socketid on winnerObj
         if (players[ii].socketId === winnerObj[0].socketId) {
           players[ii].points += 1;
 
           if (players[ii].points < 3) {
-            cardSubmissions = [];
+            cardSubmissions = []; // resets array for next round
 
             CAS.emit('another round');
 
             for (ii = 1; ii < players.length - 1; ii++) {
               let tempCard = whiteDeck.pop();
               CAS.to(players[ii]).emit('draw white', { card: tempCard });
-            }
+            }  // TODO make this a callback function called dealOneCard()
 
             assignCzar();
 
