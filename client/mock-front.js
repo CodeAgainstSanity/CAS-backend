@@ -5,7 +5,7 @@ let namespace = '/CAS';
 const player = socketio.connect(`${HOST}${namespace}`);
 const readline = require('readline');
 const { horizLine, lineBreak } = require('../src/callbacks/cli-helpers.js')
-const rl = readline.createInterface(process.stdin, process.stdout);
+const rl = readline.createInterface(process.stdin, process.stdout); // Creates an instance (i.e., don't close until you're all done with the game)
 
 let players = [];
 let whiteCards = [];
@@ -69,6 +69,7 @@ player.on('connect', (socket) => {
       // display the options line by line with index number at front as "[ 0 ]"
       whiteCards.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`)); 
       lineBreak();
+      rl.resume(); // only does anything if currently paused
       rl.setPrompt(`ENTER the number of the white card that you want to submit: `);
       rl.prompt();
       console.log('we good, fam?');
@@ -76,7 +77,7 @@ player.on('connect', (socket) => {
         let cardChoice = whiteCards.splice(cardChoiceIdx, 1)[0];
         horizLine();
         console.log(`You chose: "${cardChoice}"`);
-        rl.close();
+        rl.pause();
         player.emit('card submission', { card: cardChoice, socketId: player.id });
       });
     } else {
@@ -101,12 +102,13 @@ player.on('connect', (socket) => {
       lineBreak();
       czarOptions.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
       lineBreak();
+      rl.resume();
       rl.setPrompt(`ENTER the number of your favorite response: `);
       rl.prompt();
       rl.on('line', (czarChoiceIdx) => {
         let czarChoice = czarOptions.splice(czarChoiceIdx, 1)[0];
         horizLine();
-        rl.close();  // is adding THIS the BUG fix? I bet so.
+        rl.pause();  // is adding THIS the BUG fix? I bet so.
         console.log(`RIGHT BEFORE 'YOU CHOSE __ AS THE WINNER...' is Czar? ${isCzar}`);
         console.log(`You chose "${czarChoice}" as the winner of this round`);
         player.emit('czar selection', { roundWinner: czarChoice });
