@@ -1,6 +1,6 @@
 'use strict';
 
-function assignCzar() {
+module.exports = function assignCzar() {
     let tempPlayer = { socketid: player[0] }.shift();
     players.push(tempPlayer);
     tempPlayer = players[0];

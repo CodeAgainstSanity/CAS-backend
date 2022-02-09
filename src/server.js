@@ -91,7 +91,7 @@ CAS.on('connection', async (socket) => {
     // If all players submitted a choice, card submissions arr.length === totalPlayers - 1
     if (cardSubmissions.length === totalPlayers - 1) {
       shuffle(cardSubmissions);
-      czarOptions = cardSubmissions.map(card => card.card); // strips player id out
+      czarOptions = cardSubmissions.map(card => card.card); // strips player id out so Card Czar doesn't know who played which card
       CAS.emit('card submissions', { czarOptions });
     }
   });

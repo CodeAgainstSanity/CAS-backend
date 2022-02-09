@@ -1,10 +1,13 @@
+'use strict';
+
 module.exports = class Player {
   constructor(socketId) {
     this.socketId = socketId;
     this.points = 0;
     this.userName = name();
-  }
-}
+  };
+};
+
 const nameArray = [
   'Refrigerator',
   'Captain', 
@@ -48,6 +51,5 @@ function name(){
     return name()
   } else {
   return userName;
-  }
-
-}
+  };
+};
