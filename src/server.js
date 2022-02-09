@@ -13,7 +13,7 @@ const { WhiteDeckModel, BlackDeckModel } = require('./schema/cards.js');
 const Player = require('./callbacks/Player.js');
 const shuffle = require('./callbacks/shuffle.js');
 const charizard = require('./callbacks/charizard.js');
-const { sampleWhite, sampleBlack } = require('./sampleCardData/sampleData.js');
+const { sampleWhite, sampleBlack } = require('./vars/sampleData.js');
 const { horizLine, lineBreak } = require('./callbacks/cli-helpers.js')
 
 
