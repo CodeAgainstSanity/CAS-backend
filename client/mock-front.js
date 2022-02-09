@@ -69,10 +69,8 @@ player.on('connect', (socket) => {
       // display the options line by line with index number at front as "[ 0 ]"
       whiteCards.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
       lineBreak();
-      rl.resume(); // only does anything if currently paused
-      rl.setPrompt(`ENTER the number of the white card that you want to submit: `);
-      rl.prompt();
-      rl.on('line', (cardChoiceIdx) => {
+      // rl.resume(); // only does anything if currently paused
+      rl.question(`ENTER the number of the white card that you want to submit: `, (cardChoiceIdx) => {
         if (!isCzar) {
           let cardChoice = whiteCards.splice(cardChoiceIdx, 1)[0];
           horizLine();
