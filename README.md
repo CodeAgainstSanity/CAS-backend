@@ -56,9 +56,17 @@ Database
 
 **explain how to use the database**
 
+### Launching the server
+
 ```
 cd CAS-backend
-npm start
+node src/server.js <totalPlayers> <maxPoints>
+```
+`totalPlayers` and `maxPoints` are optional arguments when launching the socket server and they must be integers. If omitted, they default to `3` and `2` respectively:
+```js
+// in server.js
+const totalPlayers = process.argv[2] || 3;
+const maxPoints = process.argv[3] || 2
 ```
 
 ---------------------------------

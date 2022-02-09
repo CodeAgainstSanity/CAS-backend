@@ -13,6 +13,8 @@ const { WhiteDeckModel, BlackDeckModel } = require('./schema/cards.js');
 const Player = require('./callbacks/Player.js');
 const shuffle = require('./callbacks/shuffle.js');
 const { sampleWhite, sampleBlack } = require('./sampleCardData/sampleData.js');
+const { horizLine, lineBreak } = require('./callbacks/cli-helpers.js')
+
 
 // ================ DATABASE CONNECTION ================
 
@@ -54,7 +56,13 @@ db.once('open', function () {
 
 let whiteDeck, blackDeck;
 let cardSubmissions = [];
+const totalPlayers = process.argv[2] || 3;
+const maxPoints = process.argv[3] || 2
 let players = [];
+
+horizLine();
+console.log(`GAME CONFIG: \n${totalPlayers} players \nFirst to ${maxPoints} points wins the game`);
+horizLine();
 
 // ================ Client Connection ================
 
@@ -64,7 +72,7 @@ CAS.on('connection', async (socket) => {
   players.push(new Player(socket.id));
   socket.emit('connection successful', {userName: players[players.length-1].userName});
   socket.broadcast.emit('new player joined', players[players.length-1].userName); // alerts players waiting when new player joins
-  if (players.length === 4) {
+  if (players.length === totalPlayers) {
     firstCzar();
     whiteDeck = await WhiteDeckModel.find({});
     blackDeck = await BlackDeckModel.find({});
@@ -80,8 +88,8 @@ CAS.on('connection', async (socket) => {
     let tempObj = { card: payload.card, socketId: socket.id };
     // Card submissions var gets purged on new round, so dont worry about pushing here
     cardSubmissions.push(tempObj);
-    // If all 3 players submitted a choice, card submissions arr.length === 3
-    if (cardSubmissions.length === 3) {
+    // If all players submitted a choice, card submissions arr.length === totalPlayers - 1
+    if (cardSubmissions.length === totalPlayers - 1) {
       shuffle(cardSubmissions);
       czarOptions = cardSubmissions.map(card => card.card); // strips player id out
       CAS.emit('card submissions', { czarOptions });
@@ -111,13 +119,14 @@ CAS.on('connection', async (socket) => {
         if (players[ii].socketId === winnerObj[0].socketId) {
           players[ii].points += 1;
 
-          if (players[ii].points < 3) {
+          if (players[ii].points < maxPoints) {
             cardSubmissions = []; // resets array for next round
 
             CAS.emit('another round');
 
-            for (ii = 1; ii < players.length - 1; ii++) {
+            for (ii = 1; ii < players.length - 1; ii++) { // TEST I don't think this should be length - 1
               let tempCard = whiteDeck.pop();
+              console.log('dealing one more card', tempCard);
               CAS.to(players[ii]).emit('draw white', { card: tempCard });
             }  // TODO make this a callback function called dealOneCard()
 
