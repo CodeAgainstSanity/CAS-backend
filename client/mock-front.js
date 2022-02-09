@@ -66,6 +66,7 @@ player.on('connect', (socket) => {
 
   player.on('show all choice', (payload) => {
     console.log('The winning card:', payload.winningCard);
+    console.log('Submitted by:', payload.roundWinnerUsername);
   });
 
   player.on('card submissions', (payload) => {
