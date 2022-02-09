@@ -1,4 +1,7 @@
 'use strict';
+
+// ================ IMPORTS ================
+
 const socketio = require('socket.io-client');
 let HOST = 'http://localhost:3000';
 let namespace = '/CAS';
@@ -6,6 +9,8 @@ const player = socketio.connect(`${HOST}${namespace}`);
 const readline = require('readline');
 const { horizLine, lineBreak } = require('../src/callbacks/cli-helpers.js')
 const rl = readline.createInterface(process.stdin, process.stdout); // Creates an instance (i.e., don't close until you're all done with the game)
+
+// ================ GLOBAL VARS ================
 
 let players = [];
 let whiteCards = [];

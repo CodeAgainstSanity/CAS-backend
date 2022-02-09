@@ -59,4 +59,3 @@ Our website will never turn into an IOS or Android app.
 - Fast response time using Socet.io to simulate real time game turn mechanics and minimize user wait time between turns.
 - Testability via jest and user testing in order to verify functionality and overall user experience of application.
 - Emotional factors, it should amuse and entertain with its wit and lighthearted jabs.
-
