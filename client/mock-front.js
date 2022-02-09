@@ -63,7 +63,7 @@ player.on('connect', (socket) => {
     // Client makes choice, sends to server, which sends array of items to czar
     if (!isCzar) {
       lineBreak();
-      console.log('Your current hand of cards...')
+      console.log('Your current hand of cards...');
       lineBreak();
       // display the options line by line with index number at front as "[ 0 ]"
       whiteCards.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
@@ -80,7 +80,7 @@ player.on('connect', (socket) => {
       });
     } else {
       lineBreak();
-      console.log(`Awaiting player choices...`)
+      console.log(`Awaiting player choices...`);
       lineBreak();
     }
   });
@@ -93,9 +93,10 @@ player.on('connect', (socket) => {
 
   player.on('card submissions', (payload) => {
     czarOptions = payload.czarOptions;
+
     if (isCzar) {
       horizLine();
-      console.log('Here are all of the player submissions: ')
+      console.log('Here are all of the player submissions: ');
       lineBreak();
       czarOptions.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
       lineBreak();
@@ -111,7 +112,7 @@ player.on('connect', (socket) => {
       });
     } else { // for all other players
       horizLine();
-      console.log('Here are all of the player submissions: ')
+      console.log('Here are all of the player submissions: ');
       lineBreak();
       czarOptions.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
       lineBreak();
