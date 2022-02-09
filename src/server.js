@@ -85,8 +85,9 @@ CAS.on('connection', async (socket) => {
 
   socket.on('card submission', (payload) => {
     let czarOptions = [];
+    console.log(`\nRECEIVED card submission: \n"${payload.card}"\n`);
     let tempObj = { card: payload.card, socketId: socket.id };
-    // Card submissions var gets purged on new round, so dont worry about pushing here
+    // Card submissions var gets purged on new round
     cardSubmissions.push(tempObj);
     // If all players submitted a choice, card submissions arr.length === totalPlayers - 1
     if (cardSubmissions.length === totalPlayers - 1) {

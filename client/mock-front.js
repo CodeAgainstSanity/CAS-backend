@@ -37,6 +37,9 @@ player.on('connect', (socket) => {
   player.on('another round', () => {
     isCzar = false;
     console.log('The Card Czar Charizard has been passed along to the next player...');
+    console.log(`in another round... is Czar? ${isCzar}`);
+
+    czarOptions = []; // Is THIS the bugfix? I predict it is.
   });
 
   player.on('Round Starting in 3 seconds!', () => {
@@ -52,6 +55,7 @@ player.on('connect', (socket) => {
   });
 
   player.on('blackCard', (payload) => {
+    console.log(`in blackCard... is Czar? ${isCzar}`);
     blackcard = payload.card;
     horizLine();
     console.log(`HERE IS THE PROMPT:`);
@@ -63,10 +67,11 @@ player.on('connect', (socket) => {
       console.log('Your current hand of cards...')
       lineBreak();
       // display the options line by line with index number at front as "[ 0 ]"
-      whiteCards.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
+      whiteCards.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`)); 
       lineBreak();
       rl.setPrompt(`ENTER the number of the white card that you want to submit: `);
       rl.prompt();
+      console.log('we good, fam?');
       rl.on('line', (cardChoiceIdx) => {
         let cardChoice = whiteCards.splice(cardChoiceIdx, 1)[0];
         horizLine();
@@ -89,7 +94,7 @@ player.on('connect', (socket) => {
 
   player.on('card submissions', (payload) => {
     czarOptions = payload.czarOptions;
-    
+    console.log(`in card submissions... is Czar? ${isCzar}`);
     if (isCzar) {
       horizLine();
       console.log('Here are all of the player submissions: ')
@@ -98,20 +103,22 @@ player.on('connect', (socket) => {
       lineBreak();
       rl.setPrompt(`ENTER the number of your favorite response: `);
       rl.prompt();
-      rl.on('line', (cardChoiceIdx) => {
-        let cardChoice = czarOptions.splice(cardChoiceIdx, 1)[0];
+      rl.on('line', (czarChoiceIdx) => {
+        let czarChoice = czarOptions.splice(czarChoiceIdx, 1)[0];
         horizLine();
-        console.log(`You chose "${cardChoice}" as the winner of this round`);
-        player.emit('czar selection', { roundWinner: cardChoice });
-        czarOptions = []       
-      })
+        rl.close();  // is adding THIS the BUG fix? I bet so.
+        console.log(`RIGHT BEFORE 'YOU CHOSE __ AS THE WINNER...' is Czar? ${isCzar}`);
+        console.log(`You chose "${czarChoice}" as the winner of this round`);
+        player.emit('czar selection', { roundWinner: czarChoice });
+        czarOptions = [];
+      });
     } else { // for all other players
       horizLine();
       console.log('Here are all of the player submissions: ')
       lineBreak();
       czarOptions.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
       lineBreak();
-      setTimeout(()=>console.log(`Awaiting the card Czar's decision...\n`), 1500)
+      setTimeout(()=>console.log(`Awaiting the card Czar's decision...\n`), 1500);
     }
   });
 
