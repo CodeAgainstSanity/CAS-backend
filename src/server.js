@@ -166,7 +166,7 @@ CAS.on('connection', async (socket) => {
 
   // Alerts first person they are czar
   function firstCzar() {
-    CAS.to(players[0].socketId).emit('Czar', 'You are the new Card Czar');
+    CAS.to(players[0].socketId).emit('Czar', 'YOU are the CARD CZAR');
   }
 
   // Assigns next person in queue as the Czar, and updates the queue
@@ -174,7 +174,7 @@ CAS.on('connection', async (socket) => {
     let tempPlayer = players.shift();
     players.push(tempPlayer);
     tempPlayer = players[0].socketId;
-    CAS.to(tempPlayer).emit('Czar', 'You are the new Card Czar');
+    CAS.to(tempPlayer).emit('Czar', 'YOU are the new CARD CZAR');
   }
 
   function startRound() {
