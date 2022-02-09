@@ -177,7 +177,18 @@ CAS.on('connection', async (socket) => {
 
   // Alerts first person they are czar
   function firstCzar() {
-    CAS.to(players[0].socketId).emit('Czar', `YOU are the CARD CZAR
+    CAS.to(players[0].socketId).emit('Czar', charizard());
+  }
+
+  // Assigns next person in queue as the Czar, and updates the queue
+  function assignCzar() {
+    let tempPlayer = players.shift();
+    players.push(tempPlayer);
+    tempPlayer = players[0].socketId;
+    CAS.to(tempPlayer).emit('Czar', charizard());
+  }
+  function charizard(){
+    return `YOU are the new CARD CZAR  \n
     ."-,.__ \n
     '.     '.  , \n
  .--'  .._,'"-' ''. \n
@@ -216,6 +227,7 @@ CAS.on('connection', async (socket) => {
 '-.__ ',  ''   .  _.>----''.  _  __  / \n
    .'        /"'          |  "'   '_ \n
   /_|.-'\ ,".             '.''__'-( \ \n
+
     / ,"'"\,'               '/  '-.|"` 
     );
   }
