@@ -8,7 +8,7 @@ let namespace = '/CAS';
 const player = socketio.connect(`${HOST}${namespace}`);
 const readline = require('readline');
 const { horizLine, lineBreak } = require('../src/callbacks/cli-helpers.js')
-const rl = readline.createInterface(process.stdin, process.stdout);
+const rl = readline.createInterface(process.stdin, process.stdout); // Creates an instance (i.e., don't close until you're all done with the game)
 
 // ================ GLOBAL VARS ================
 
@@ -41,7 +41,10 @@ player.on('connect', (socket) => {
 
   player.on('another round', () => {
     isCzar = false;
+    horizLine();
     console.log('The Card Czar Charizard has been passed along to the next player...');
+
+    czarOptions = []; // Clears out the array of submissions from previous round
   });
 
   player.on('Round Starting in 3 seconds!', () => {
@@ -50,10 +53,10 @@ player.on('connect', (socket) => {
   });
 
   player.on('draw white', (payload) => {
-    console.log(`whiteCards.length before draw: ${whiteCards.length}`)
-    console.log(`dealt another white card: \n"${payload.card}"`);
+    horizLine();
+    console.log(`You drew another white card: \n"${payload.card}"`);
     whiteCards.push(payload.card);
-    console.log(`whiteCards.length after draw: ${whiteCards.length}`)
+
   });
 
   player.on('blackCard', (payload) => {
@@ -62,31 +65,32 @@ player.on('connect', (socket) => {
     console.log(`HERE IS THE PROMPT:`);
     lineBreak();
     console.log(`"${blackcard}"`);
-    // Client makes choice from their white cards, sends to server, which sends array of items to czar
+    // Client makes choice, sends to server, which sends array of items to czar
     if (!isCzar) {
       lineBreak();
-      console.log('Your current hand of cards...')
+      console.log('Your current hand of cards...');
       lineBreak();
       // display the options line by line with index number at front as "[ 0 ]"
       whiteCards.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
       lineBreak();
-      rl.setPrompt(`ENTER the number of the white card that you want to submit: `);
-      rl.prompt();
-      rl.on('line', (cardChoiceIdx) => {
-        let cardChoice = whiteCards.splice(cardChoiceIdx, 1)[0];
-        horizLine();
-        console.log(`You chose: "${cardChoice}"`);
-        rl.close();
-        player.emit('card submission', { card: cardChoice, socketId: player.id });
+
+      rl.question(`ENTER the number of the white card that you want to submit: `, (cardChoiceIdx) => {
+        if (!isCzar) {
+          let cardChoice = whiteCards.splice(cardChoiceIdx, 1)[0];
+          horizLine();
+          console.log(`You chose: "${cardChoice}"`);
+          player.emit('card submission', { card: cardChoice, socketId: player.id });
+        }
+        rl.pause();
       });
     } else {
       lineBreak();
-      console.log(`Awaiting player choices...`)
+      console.log(`Awaiting player choices...`);
       lineBreak();
     }
   });
 
-  player.on('show all choice', (payload) => {
+  player.on('broadcast round winner', (payload) => {
     horizLine();
     console.log('The winning card:', payload.winningCard);
     console.log('Submitted by:', payload.roundWinnerUsername);
@@ -94,29 +98,30 @@ player.on('connect', (socket) => {
 
   player.on('card submissions', (payload) => {
     czarOptions = payload.czarOptions;
-    
+
     if (isCzar) {
       horizLine();
-      console.log('Here are all of the player submissions: ')
+      console.log('Here are all of the player submissions: ');
       lineBreak();
       czarOptions.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
       lineBreak();
-      rl.setPrompt(`ENTER the number of your favorite response: `);
-      rl.prompt();
-      rl.on('line', (cardChoiceIdx) => {
-        let cardChoice = czarOptions.splice(cardChoiceIdx, 1)[0];
-        horizLine();
-        console.log(`You chose "${cardChoice}" as the winner of this round`);
-        player.emit('czar selection', { roundWinner: cardChoice });
-        czarOptions = []       
-      })
+      rl.resume();
+      rl.question(`ENTER the number of your favorite response: `, (czarChoiceIdx) => {
+        if (isCzar) {
+          let czarChoice = czarOptions.splice(czarChoiceIdx, 1)[0];
+          horizLine();
+          console.log(`You chose "${czarChoice}" as the winner of this round`);
+          player.emit('czar selection', { roundWinner: czarChoice });
+        }
+        rl.pause();  
+      });
     } else { // for all other players
       horizLine();
-      console.log('Here are all of the player submissions: ')
+      console.log('Here are all of the player submissions: ');
       lineBreak();
       czarOptions.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
       lineBreak();
-      setTimeout(()=>console.log(`Awaiting the card Czar's decision...\n`), 1500)
+      setTimeout(() => console.log(`Awaiting the card Czar's decision...\n`), 1500);
     }
   });
 
@@ -126,9 +131,6 @@ player.on('connect', (socket) => {
     horizLine();
   });
 
-  player.on('pls disconnect', () => {
-    player.emit('disconnect all');
-  });
 });
 
 // EOF

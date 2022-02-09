@@ -42,18 +42,22 @@ Microsoft Visual Studio
 
 Clone this repository to your local machine.
 
+
 ```js
 git clone git@github.com:CodeAgainstSanity/CAS-backend.git 
-```
+'''
 
 Once downloaded, you can either use the dotnet CLI utilities or Visual Studio 2017 (or greater) to build the web application.
 
+
 ```js
+
 cd CAS-backend
-`npm i`
-```
+'npm i'
+'''
 
 Install all dependencies needed for the project.
+
 
 ```js
 Dotenv
@@ -61,10 +65,15 @@ socket.io
 socket.io-cli
 MongooseDB
 ```
+=======
+
+
+
 
 **Explaination of how to use the database**
 
 ### Launching the server
+
 
 ```js
 cd CAS-backend
@@ -72,10 +81,11 @@ node src/server.js <totalPlayers> <maxPoints>
 ```js
 `totalPlayers` and `maxPoints` are optional arguments when launching the socket server and they must be integers. If omitted, they default to `3` and `2` respectively:
 ```js
+
 // in server.js
 const totalPlayers = process.argv[2] || 3;
 const maxPoints = process.argv[3] || 2
-```
+'''
 
 ---
 
@@ -116,6 +126,7 @@ The socket server connects to individual clients (a minimum of four), each clien
 ---
 
 ### Socket Server pub/sub breakdown:
+
 
 ```js
 ON 'connection' :
@@ -168,8 +179,8 @@ drawCard(socketid)
 assignCzar()
   assign czar to players[0]
   EMIT to czar socketid 'youareczar'
-```
 
+```
 ### Events
 
 - client connection

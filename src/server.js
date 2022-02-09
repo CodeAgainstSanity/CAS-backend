@@ -12,6 +12,7 @@ const mongoose = require('mongoose');
 const { WhiteDeckModel, BlackDeckModel } = require('./schema/cards.js');
 const Player = require('./callbacks/Player.js');
 const shuffle = require('./callbacks/shuffle.js');
+const charizard = require('./callbacks/charizard.js');
 const { sampleWhite, sampleBlack } = require('./sampleCardData/sampleData.js');
 const { horizLine, lineBreak } = require('./callbacks/cli-helpers.js')
 
@@ -85,8 +86,9 @@ CAS.on('connection', async (socket) => {
 
   socket.on('card submission', (payload) => {
     let czarOptions = [];
+    console.log(`\nRECEIVED card submission: \n"${payload.card}"\n`);
     let tempObj = { card: payload.card, socketId: socket.id };
-    // Card submissions var gets purged on new round, so dont worry about pushing here
+    // Card submissions var gets purged on new round
     cardSubmissions.push(tempObj);
     // If all players submitted a choice, card submissions arr.length === totalPlayers - 1
     if (cardSubmissions.length === totalPlayers - 1) {
@@ -102,7 +104,7 @@ CAS.on('connection', async (socket) => {
     if (socket.id === players[0].socketId) {
 
       let winnerObj = cardSubmissions.filter((element) => {
-        return element.card === payload.roundWinner; // TEST does this need to be payload.roundWinner.card?
+        return element.card === payload.roundWinner;
       });
 
       let roundWinnerUsername = "";
@@ -113,7 +115,7 @@ CAS.on('connection', async (socket) => {
         }
       }
 
-      socket.broadcast.emit('show all choice', { winningCard: payload.roundWinner, roundWinnerUsername });
+      socket.broadcast.emit('broadcast round winner', { winningCard: payload.roundWinner, roundWinnerUsername });
 
       for (let ii = 0; ii < players.length; ii++) {
         if (players[ii].socketId === winnerObj[0].socketId) {
@@ -123,27 +125,27 @@ CAS.on('connection', async (socket) => {
             cardSubmissions = []; // resets array for next round
 
             CAS.emit('another round');
-            dealOneCard();
-            assignCzar();
+            setTimeout(() => {
+              dealOneCard();
+              assignCzar();
+            },
+              3000);
+
 
           } else {
             CAS.emit('game winner', { winner: players[ii].userName });
             // Force disconnect all sockets connected
-            socket.emit('pls disconnect');
+            CAS.sockets.forEach((socket) => {
+              // If given socket id is exist in list of all sockets, kill it
+              socket.disconnect(true);
+            });
+            players = [];
           }
         }
       }
     }
   });
 
-  // Set up event listener for client disconnect then remove said client socket id from player queue
-  socket.on('disconnect all', () => {
-    CAS.sockets.forEach((socket) => {
-      // If given socket id is exist in list of all sockets, kill it
-      socket.disconnect(true);
-    });
-    players = [];
-  });
 
   // Just the czar emits this (client side) after receiving black card
   socket.on('letsGo', () => {
@@ -172,12 +174,12 @@ CAS.on('connection', async (socket) => {
       let tempCard = whiteDeck.pop();
       console.log(`dealing one more card: \n"${tempCard}"\nto ${players[ii].userName}`);
       CAS.to(players[ii].socketId).emit('draw white', { card: tempCard });
-    } 
+    }
   }
 
   // Alerts first person they are czar
   function firstCzar() {
-    CAS.to(players[0].socketId).emit('Czar', 'YOU are the CARD CZAR');
+    CAS.to(players[0].socketId).emit('Czar', charizard());
   }
 
   // Assigns next person in queue as the Czar, and updates the queue
@@ -185,7 +187,16 @@ CAS.on('connection', async (socket) => {
     let tempPlayer = players.shift();
     players.push(tempPlayer);
     tempPlayer = players[0].socketId;
-    CAS.to(tempPlayer).emit('Czar', 'YOU are the new CARD CZAR');
+    CAS.to(tempPlayer).emit('Czar', charizard());
+  }
+
+
+  // Assigns next person in queue as the Czar, and updates the queue
+  function assignCzar() {
+    let formerCzar = players.shift();
+    players.push(formerCzar);
+    let newCzar = players[0].socketId;
+    CAS.to(newCzar).emit('Czar', charizard());
   }
 
   function startRound() {
