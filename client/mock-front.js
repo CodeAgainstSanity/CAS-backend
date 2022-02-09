@@ -90,13 +90,16 @@ player.on('connect', (socket) => {
     
     if (isCzar) {
       horizLine();
+      console.log('Here are all of the player submissions: ')
+      lineBreak();
       czarOptions.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
       lineBreak();
       rl.setPrompt(`ENTER the number of your favorite response: `);
       rl.prompt();
       rl.on('line', (cardChoiceIdx) => {
         let cardChoice = czarOptions.splice(cardChoiceIdx, 1)[0];
-        console.log(`You chose "${cardChoice}" as the best answer`);
+        horizLine();
+        console.log(`You chose "${cardChoice}" as the winner of this round`);
         player.emit('czar selection', { roundWinner: cardChoice });
       })
     } else { // for all other players
@@ -105,8 +108,7 @@ player.on('connect', (socket) => {
       lineBreak();
       czarOptions.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
       lineBreak();
-      setTimeout(()=>console.log(`Awaiting the card Czar's decision...`), 1000)
-      lineBreak();
+      setTimeout(()=>console.log(`Awaiting the card Czar's decision...\n`), 1500)
     }
   });
 
