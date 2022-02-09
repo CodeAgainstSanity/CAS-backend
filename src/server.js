@@ -12,6 +12,7 @@ const mongoose = require('mongoose');
 const { WhiteDeckModel, BlackDeckModel } = require('./schema/cards.js');
 const Player = require('./callbacks/Player.js');
 const shuffle = require('./callbacks/shuffle.js');
+const charizard = require('./callbacks/charizard.js');
 const { sampleWhite, sampleBlack } = require('./sampleCardData/sampleData.js');
 const { horizLine, lineBreak } = require('./callbacks/cli-helpers.js')
 
@@ -103,7 +104,7 @@ CAS.on('connection', async (socket) => {
     if (socket.id === players[0].socketId) {
 
       let winnerObj = cardSubmissions.filter((element) => {
-        return element.card === payload.roundWinner; 
+        return element.card === payload.roundWinner;
       });
 
       let roundWinnerUsername = "";
@@ -124,11 +125,12 @@ CAS.on('connection', async (socket) => {
             cardSubmissions = []; // resets array for next round
 
             CAS.emit('another round');
-            setTimeout(() => { 
+            setTimeout(() => {
               dealOneCard();
-              assignCzar(); }, 
+              assignCzar();
+            },
               3000);
-            
+
 
           } else {
             CAS.emit('game winner', { winner: players[ii].userName });
@@ -172,7 +174,7 @@ CAS.on('connection', async (socket) => {
       let tempCard = whiteDeck.pop();
       console.log(`dealing one more card: \n"${tempCard}"\nto ${players[ii].userName}`);
       CAS.to(players[ii].socketId).emit('draw white', { card: tempCard });
-    } 
+    }
   }
 
   // Alerts first person they are czar
@@ -187,97 +189,14 @@ CAS.on('connection', async (socket) => {
     tempPlayer = players[0].socketId;
     CAS.to(tempPlayer).emit('Czar', charizard());
   }
-  function charizard(){
-    return `YOU are the new CARD CZAR  \n
-    ."-,.__ \n
-    '.     '.  , \n
- .--'  .._,'"-' ''. \n
-.    .'         '' \n
-''.   /          ,'\n
-  ''  '--.   ,-"'\n
-   '"'   |  \ \n
-      -. \, | \n
-       '--Y.'      ___. \n
-            \     L._, \ \n
-  _.,        '.   <  <\  \n              _
-,' '           '', '.   | \            ( ' \n
-../, '.            '  |    .\''.           \ \_ \n
-,' ,..  .           _.,'    ||\l            )  '". \n
-, ,'   \           ,'.-.'-._,'  |           .  _._'. \n
-,' /      \ \        '' ' '--/   | \          / /   ..\ \n
-.'  /        \ .         |\__ - _ ,' '        / /     '.'. \n
-|  '          ..         '-...-"  |  '-'      / /        . '. \n
-| /           |L__           |    |          / /          '. '. \n
-, /            .   .          |    |         / /             ' ' \n
-/ /          ,. ,'._ '-_       |    |  _   ,-' /               ' \ \n
-/ .           \"'_/. '-_ \_,.  ,'    +-' '-'  _,        ..,-.    \'. \n
-.  '         .-f    ,'   '    '.       \__.---'     _   .'   '     \ \ \n
-' /          '.'    l     .' /          \..      ,_|/   '.  ,''     L' \n
-|'      _.-""' '.    \ _,'  '            \ '.___'.'"'-.  , |   |    | \ \n
-||    ,'      '. '.   '       _,...._        '  |    '/ '  |   '     .| \n
-||  ,'          '. ;.,.---' ,'       '.   '.. '-'  .-' /_ .'    ;_   || \n
-|| '              V      / /           '   | '   ,'   ,' '.    !  '. || \n
-||/            _,-------7 '              . |  '-'    l         /    '|| \n
-. |          ,' .-   ,' ||               | .-.        '.      .'     || \n
-''        ,'    '".'    |               |    '.        '. -.'       '' \n
-/      ,'      |               |,'    \-.._,.'/' \n
-.     /        .               .       \    .'' \n
-.'.    |         '.             /         :_,'.' \n
-\ '...\   _     ,'-.        .'         /_.-' \n
-'-.__ ',  ''   .  _.>----''.  _  __  / \n
-   .'        /"'          |  "'   '_ \n
-  /_|.-'\ ,".             '.''__'-( \ \n
 
-    / ,"'"\,'               '/  '-.|"` 
-    );
-  }
 
   // Assigns next person in queue as the Czar, and updates the queue
   function assignCzar() {
     let formerCzar = players.shift();
     players.push(formerCzar);
     let newCzar = players[0].socketId;
-    CAS.to(newCzar).emit('Czar', `YOU are the new CARD CZAR
-      ."-,.__ \n
-      '.     '.  , \n
-   .--'  .._,'"-' ''. \n
-  .    .'         '' \n
-  ''.   /          ,'\n
-    ''  '--.   ,-"'\n
-     '"'   |  \ \n
-        -. \, | \n
-         '--Y.'      ___. \n
-              \     L._, \ \n
-    _.,        '.   <  <\  \n              _
-  ,' '           '', '.   | \            ( ' \n
-  ../, '.            '  |    .\''.           \ \_ \n
-  ,' ,..  .           _.,'    ||\l            )  '". \n
-  , ,'   \           ,'.-.'-._,'  |           .  _._'. \n
-  ,' /      \ \        '' ' '--/   | \          / /   ..\ \n
-  .'  /        \ .         |\__ - _ ,' '        / /     '.'. \n
-  |  '          ..         '-...-"  |  '-'      / /        . '. \n
-  | /           |L__           |    |          / /          '. '. \n
-  , /            .   .          |    |         / /             ' ' \n
-  / /          ,. ,'._ '-_       |    |  _   ,-' /               ' \ \n
-  / .           \"'_/. '-_ \_,.  ,'    +-' '-'  _,        ..,-.    \'. \n
-  .  '         .-f    ,'   '    '.       \__.---'     _   .'   '     \ \ \n
-  ' /          '.'    l     .' /          \..      ,_|/   '.  ,''     L' \n
-  |'      _.-""' '.    \ _,'  '            \ '.___'.'"'-.  , |   |    | \ \n
-  ||    ,'      '. '.   '       _,...._        '  |    '/ '  |   '     .| \n
-  ||  ,'          '. ;.,.---' ,'       '.   '.. '-'  .-' /_ .'    ;_   || \n
-  || '              V      / /           '   | '   ,'   ,' '.    !  '. || \n
-  ||/            _,-------7 '              . |  '-'    l         /    '|| \n
-  . |          ,' .-   ,' ||               | .-.        '.      .'     || \n
-  ''        ,'    '".'    |               |    '.        '. -.'       '' \n
-  /      ,'      |               |,'    \-.._,.'/' \n
-  .     /        .               .       \    .'' \n
-  .'.    |         '.             /         :_,'.' \n
-  \ '...\   _     ,'-.        .'         /_.-' \n
-  '-.__ ',  ''   .  _.>----''.  _  __  / \n
-     .'        /"'          |  "'   '_ \n
-    /_|.-'\ ,".             '.''__'-( \ \n
-      / ,"'"\,'               '/  '-.|"`
-    );
+    CAS.to(newCzar).emit('Czar', charizard());
   }
 
   function startRound() {
