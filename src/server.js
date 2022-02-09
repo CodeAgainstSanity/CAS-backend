@@ -92,9 +92,9 @@ CAS.on('connection', async (socket) => {
   socket.on('czar selection', (payload) => {
     // Checks if selection is coming from the current card czar
     if (socket.id === players[0].socketId) {
-      
+
       let winnerObj = cardSubmissions.filter((element) => {
-        return element.card === payload.roundWinner;
+        return element.card === payload.roundWinner; // TEST does this need to be payload.roundWinner.card?
       });
 
       let roundWinnerUsername = "";
@@ -112,14 +112,14 @@ CAS.on('connection', async (socket) => {
           players[ii].points += 1;
 
           if (players[ii].points < 3) {
-            cardSubmissions = [];
+            cardSubmissions = []; // resets array for next round
 
             CAS.emit('another round');
 
             for (ii = 1; ii < players.length - 1; ii++) {
               let tempCard = whiteDeck.pop();
               CAS.to(players[ii]).emit('draw white', { card: tempCard });
-            }
+            }  // TODO make this a callback function called dealOneCard()
 
             assignCzar();
 
@@ -152,6 +152,7 @@ CAS.on('connection', async (socket) => {
 
   // Functions need to be in the 'connection' event block, or 'socket' is unknown
   function dealCards() {
+    console.log('inside dealCards()');
     players.forEach((player, idx) => {
       //   pop 7 cards from white stack, 
       let handOfCards = [];
