@@ -67,18 +67,19 @@ player.on('connect', (socket) => {
       console.log('Your current hand of cards...')
       lineBreak();
       // display the options line by line with index number at front as "[ 0 ]"
-      whiteCards.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`)); 
+      whiteCards.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
       lineBreak();
       rl.resume(); // only does anything if currently paused
       rl.setPrompt(`ENTER the number of the white card that you want to submit: `);
       rl.prompt();
-      console.log('we good, fam?');
       rl.on('line', (cardChoiceIdx) => {
-        let cardChoice = whiteCards.splice(cardChoiceIdx, 1)[0];
-        horizLine();
-        console.log(`You chose: "${cardChoice}"`);
+        if (!isCzar) {
+          let cardChoice = whiteCards.splice(cardChoiceIdx, 1)[0];
+          horizLine();
+          console.log(`You chose: "${cardChoice}"`);
+          player.emit('card submission', { card: cardChoice, socketId: player.id });
+        }
         rl.pause();
-        player.emit('card submission', { card: cardChoice, socketId: player.id });
       });
     } else {
       lineBreak();
@@ -106,13 +107,14 @@ player.on('connect', (socket) => {
       rl.setPrompt(`ENTER the number of your favorite response: `);
       rl.prompt();
       rl.on('line', (czarChoiceIdx) => {
-        let czarChoice = czarOptions.splice(czarChoiceIdx, 1)[0];
-        horizLine();
-        rl.pause();  // is adding THIS the BUG fix? I bet so.
-        console.log(`RIGHT BEFORE 'YOU CHOSE __ AS THE WINNER...' is Czar? ${isCzar}`);
-        console.log(`You chose "${czarChoice}" as the winner of this round`);
-        player.emit('czar selection', { roundWinner: czarChoice });
-        czarOptions = [];
+        if (isCzar) {
+          let czarChoice = czarOptions.splice(czarChoiceIdx, 1)[0];
+          horizLine();
+          rl.pause();  
+          console.log(`RIGHT BEFORE 'YOU CHOSE __ AS THE WINNER...' is Czar? ${isCzar}`);
+          console.log(`You chose "${czarChoice}" as the winner of this round`);
+          player.emit('czar selection', { roundWinner: czarChoice });
+        }
       });
     } else { // for all other players
       horizLine();
@@ -120,7 +122,7 @@ player.on('connect', (socket) => {
       lineBreak();
       czarOptions.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
       lineBreak();
-      setTimeout(()=>console.log(`Awaiting the card Czar's decision...\n`), 1500);
+      setTimeout(() => console.log(`Awaiting the card Czar's decision...\n`), 1500);
     }
   });
 
