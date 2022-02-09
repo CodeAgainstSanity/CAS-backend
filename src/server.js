@@ -70,8 +70,8 @@ CAS.on('connection', async (socket) => {
   // We can assign each socket.id to a name here??? Up to yall
   // Maybe stretch goal is player inputs their own name
   players.push(new Player(socket.id));
-  socket.emit('connection successful', {userName: players[players.length-1].userName});
-  socket.broadcast.emit('new player joined', players[players.length-1].userName); // alerts players waiting when new player joins
+  socket.emit('connection successful', { userName: players[players.length - 1].userName });
+  socket.broadcast.emit('new player joined', players[players.length - 1].userName); // alerts players waiting when new player joins
   if (players.length === totalPlayers) {
     firstCzar();
     whiteDeck = await WhiteDeckModel.find({});
@@ -106,7 +106,7 @@ CAS.on('connection', async (socket) => {
       });
 
       let roundWinnerUsername = "";
-      
+
       for (let ii = 0; ii < players.length; ii++) {
         if (players[ii].socketId === winnerObj[0].socketId) {
           roundWinnerUsername = players[ii].userName;
@@ -123,13 +123,7 @@ CAS.on('connection', async (socket) => {
             cardSubmissions = []; // resets array for next round
 
             CAS.emit('another round');
-
-            for (ii = 1; ii < players.length; ii++) { // TEST I don't think this should be length - 1
-              let tempCard = whiteDeck.pop();
-              console.log(`dealing one more card: \n"${tempCard}"\nto ${players[ii].userName}`);
-              CAS.to(players[ii].socketId).emit('draw white', { card: tempCard });
-            }  // TODO make this a callback function called dealOneCard()
-
+            dealOneCard();
             assignCzar();
 
           } else {
@@ -141,7 +135,7 @@ CAS.on('connection', async (socket) => {
       }
     }
   });
-  
+
   // Set up event listener for client disconnect then remove said client socket id from player queue
   socket.on('disconnect all', () => {
     CAS.sockets.forEach((socket) => {
@@ -150,14 +144,14 @@ CAS.on('connection', async (socket) => {
     });
     players = [];
   });
-  
-    // Just the czar emits this (client side) after receiving black card
-    socket.on('letsGo', () => {
-      if (socket.id === players[0].socketId) { //verifies that only czar can trigger 'letsGo'
-        CAS.emit('Round Starting in 3 seconds!');
-        setTimeout(() => { startRound() }, 3000);
-      }
-    });
+
+  // Just the czar emits this (client side) after receiving black card
+  socket.on('letsGo', () => {
+    if (socket.id === players[0].socketId) { //verifies that only czar can trigger 'letsGo'
+      CAS.emit('Round Starting in 3 seconds!');
+      setTimeout(() => { startRound() }, 3000);
+    }
+  });
 
   // Functions need to be in the 'connection' event block, or 'socket' is unknown
   function dealCards() {
@@ -171,6 +165,14 @@ CAS.on('connection', async (socket) => {
       //   EMIT array of cards to player
       CAS.to(player.socketId).emit('hand of white cards', { handOfCards });
     });
+  }
+
+  function dealOneCard() {
+    for (let ii = 1; ii < players.length; ii++) { // TEST I don't think this should be length - 1
+      let tempCard = whiteDeck.pop();
+      console.log(`dealing one more card: \n"${tempCard}"\nto ${players[ii].userName}`);
+      CAS.to(players[ii].socketId).emit('draw white', { card: tempCard });
+    } 
   }
 
   // Alerts first person they are czar
