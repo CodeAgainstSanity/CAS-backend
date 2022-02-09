@@ -103,7 +103,7 @@ CAS.on('connection', async (socket) => {
     if (socket.id === players[0].socketId) {
 
       let winnerObj = cardSubmissions.filter((element) => {
-        return element.card === payload.roundWinner; // TEST does this need to be payload.roundWinner.card?
+        return element.card === payload.roundWinner; 
       });
 
       let roundWinnerUsername = "";
@@ -114,7 +114,7 @@ CAS.on('connection', async (socket) => {
         }
       }
 
-      socket.broadcast.emit('show all choice', { winningCard: payload.roundWinner, roundWinnerUsername });
+      socket.broadcast.emit('broadcast round winner', { winningCard: payload.roundWinner, roundWinnerUsername });
 
       for (let ii = 0; ii < players.length; ii++) {
         if (players[ii].socketId === winnerObj[0].socketId) {
@@ -130,21 +130,17 @@ CAS.on('connection', async (socket) => {
           } else {
             CAS.emit('game winner', { winner: players[ii].userName });
             // Force disconnect all sockets connected
-            socket.emit('pls disconnect');
+            CAS.sockets.forEach((socket) => {
+              // If given socket id is exist in list of all sockets, kill it
+              socket.disconnect(true);
+            });
+            players = [];
           }
         }
       }
     }
   });
 
-  // Set up event listener for client disconnect then remove said client socket id from player queue
-  socket.on('disconnect all', () => {
-    CAS.sockets.forEach((socket) => {
-      // If given socket id is exist in list of all sockets, kill it
-      socket.disconnect(true);
-    });
-    players = [];
-  });
 
   // Just the czar emits this (client side) after receiving black card
   socket.on('letsGo', () => {
