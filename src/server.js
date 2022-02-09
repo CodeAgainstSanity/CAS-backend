@@ -226,10 +226,9 @@ CAS.on('connection', async (socket) => {
 \ '...\   _     ,'-.        .'         /_.-' \n
 '-.__ ',  ''   .  _.>----''.  _  __  / \n
    .'        /"'          |  "'   '_ \n
-  /_|.-'\ ,".             '.''__'-( \ \n
+  /_|.-'\\ ,".             '.''__'-( \ \n
 
     / ,"'"\,'               '/  '-.|"` 
-    );
   }
 
   // Assigns next person in queue as the Czar, and updates the queue
