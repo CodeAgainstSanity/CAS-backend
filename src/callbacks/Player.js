@@ -6,7 +6,8 @@ module.exports = class Player {
   }
 }
 const nameArray = [
-  'Refrigerator', 
+  'Refrigerator',
+  'Captain', 
   'Steve', 
   'Dark',
   'Pants',
@@ -34,6 +35,9 @@ const nameArray = [
   'Volcano', 
   'Person', 
   'Car', 
+  'Musical',
+  'Blue',
+  'Magic', 
 ];
 
 function name(){
