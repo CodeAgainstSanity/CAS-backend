@@ -114,7 +114,7 @@ CAS.on('connection', async (socket) => {
           roundWinnerUsername = players[ii].userName;
         }
       }
-
+      // insert scorecard into this emit:
       socket.broadcast.emit('broadcast round winner', { winningCard: payload.roundWinner, roundWinnerUsername });
 
       for (let ii = 0; ii < players.length; ii++) {
