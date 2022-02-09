@@ -92,12 +92,20 @@ CAS.on('connection', async (socket) => {
   socket.on('czar selection', (payload) => {
     // Checks if selection is coming from the current card czar
     if (socket.id === players[0].socketId) {
-
-      socket.broadcast.emit('show all choice', {winningCard: payload.roundWinner});
-
+      
       let winnerObj = cardSubmissions.filter((element) => {
         return element.card === payload.roundWinner;
       });
+
+      let roundWinnerUsername = "";
+      
+      for (let ii = 0; ii < players.length; ii++) {
+        if (players[ii].socketId === winnerObj[0].socketId) {
+          roundWinnerUsername = players[ii].userName;
+        }
+      }
+
+      socket.broadcast.emit('show all choice', { winningCard: payload.roundWinner, roundWinnerUsername });
 
       for (let ii = 0; ii < players.length; ii++) {
         if (players[ii].socketId === winnerObj[0].socketId) {
