@@ -1,6 +1,6 @@
 'use strict';
 
-// ================ IMPORTS ================
+// ============ IMPORTS ============
 
 const socketio = require('socket.io-client');
 let HOST = 'http://localhost:3000';
@@ -10,14 +10,14 @@ const readline = require('readline');
 const { horizLine, lineBreak } = require('../src/callbacks/cli-helpers.js')
 const rl = readline.createInterface(process.stdin, process.stdout); // Creates an instance (i.e., don't close until you're all done with the game)
 
-// ================ GLOBAL VARS ================
+// ============ GLOBAL VARS ============
 
 let whiteCards = [];
 let blackcard = "";
 let cardSubmissions = [];
 let isCzar = false;
 
-player.on('connect', (socket) => {
+player.on('connect', () => {
   player.on('connection successful', (payload) => {
     horizLine();
     console.log('Connection successful.\n\nYOUR NAME IS:', payload.userName);
@@ -43,7 +43,6 @@ player.on('connect', (socket) => {
     isCzar = false;
     horizLine();
     console.log('The Card Czar Charizard has been passed along to the next player...');
-
     cardSubmissions = []; // Clears out the array of submissions from previous round
   });
 
@@ -56,7 +55,6 @@ player.on('connect', (socket) => {
     horizLine();
     console.log(`You drew another white card: \n"${payload.card}"`);
     whiteCards.push(payload.card);
-
   });
 
   player.on('blackCard', async (payload) => {
@@ -172,7 +170,4 @@ player.on('connect', (socket) => {
 1. 'cardChoice' overlapping scope?
 2. on server, not updating socketId associate with Czar
 3. 'draw white' event not triggering on client
-
-
-
 */
