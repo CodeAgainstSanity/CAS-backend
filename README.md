@@ -116,7 +116,7 @@ const maxPoints = process.argv[3] || 2
 
 The socket server connects to individual clients (a minimum of four), each client represents a player which will be added to a player queue. The server communicates with the database for the prompts/black cards each round, and for the initial answers/white cards which will be replenished after each round.
 
-![Data Flow Diagram](../assets/UML.jpg)
+![Data Flow Diagram](./assets/UML.jpg)
 
 ---
 
@@ -125,7 +125,7 @@ The socket server connects to individual clients (a minimum of four), each clien
 ### Overall Project Schema
 
 ***Both the prompts/black cards, and the answers/white cards are stored within our database schema as strings***
-![Database Schema](../assets/DBSchema.png) DBSchema.png
+![Database Schema](./assets/DBSchema.png)
 
 ---
 
