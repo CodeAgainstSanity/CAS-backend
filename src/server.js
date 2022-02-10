@@ -115,12 +115,16 @@ CAS.on('connection', async (socket) => {
         }
       }
       // insert scorecard into this emit:
+
+      
       socket.broadcast.emit('broadcast round winner', { winningCard: payload.roundWinner, roundWinnerUsername });
 
       for (let ii = 0; ii < players.length; ii++) {
         if (players[ii].socketId === winnerObj[0].socketId) {
           players[ii].points += 1;
-
+          
+          generateScoreCard();
+          
           if (players[ii].points < maxPoints) {
             cardSubmissions = []; // resets array for next round
 
@@ -206,6 +210,17 @@ CAS.on('connection', async (socket) => {
     // Sends card with the 'blackCard' event
     CAS.emit('blackCard', { card });
   };
+
+  function generateScoreCard() {
+    horizLine();
+    console.log(`* * * *\tSCORE CARD\t* * * *`);
+    console.log(`||\tPLAYER\t--->\tPOINTS`);
+    lineBreak();
+    players.forEach(player => {
+      console.log(`||\t${player.userName}\t--->\t${player.points}`);
+    });
+    horizLine();
+  }
 });
 
 // EOF
