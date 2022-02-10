@@ -51,7 +51,7 @@ let sampleWhite = [
   'Maximum tears per hour',
   'The longest 6 months of my life',
   'Jeff Bezos',
-  'Really great facial hair', 
+  'Really great facial hair',
   'Error Codes',
   'A justified god complex',
   'Crippling depression',
@@ -67,12 +67,12 @@ let sampleBlack = [
   'The partner power hour this Friday will focus on _____.',
   'When I graduate Code Fellows,Im going to make an app for_____.',
   'A successful whiteboard interview begins with a firm handshake, and ends with _____.',
-  'Software development feels like _____.', 
+  'Software development feels like _____.',
   'The Docs say to try _____.',
-  'Did_____fix the bug?', 
+  'Did _____ fix the bug?',
   'I got docked points on the last lab for ____.',
   'As a developer, my greatest achievement is _____.',
-  'I didnt become a developer for the money, I did it for ______.'
+  'I didnt become a developer for the money, I did it for _____.'
 ];
 
 module.exports = {
