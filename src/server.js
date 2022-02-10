@@ -204,4 +204,6 @@ CAS.on('connection', async (socket) => {
 
 });
 
+module.exports = { startRound, assignNextCzar, firstCzar, dealOneCard, dealCards };
+
 // EOF
