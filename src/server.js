@@ -57,8 +57,8 @@ db.once('open', function () {
 
 let whiteDeck, blackDeck;
 let cardSubmissionsWithId = [];
-const totalPlayers = process.argv[2] || 3;
-const maxPoints = process.argv[3] || 2
+const totalPlayers = process.argv[2] || 4;
+const maxPoints = process.argv[3] || 2;
 let players = [];
 
 horizLine();
@@ -68,7 +68,6 @@ horizLine();
 // ============ Client Connection ============
 
 CAS.on('connection', async (socket) => {
-  // We can assign each socket.id to a name here??? Up to yall
   // Maybe stretch goal is player inputs their own name
   players.push(new Player(socket.id));
   socket.emit('connection successful', { userName: players[players.length - 1].userName });
@@ -128,8 +127,8 @@ CAS.on('connection', async (socket) => {
           if (players[ii].points < maxPoints) {
             cardSubmissionsWithId = []; // resets array for next round
 
-            CAS.emit('another round');
             setTimeout(() => {
+              CAS.emit('another round');
               dealOneCard();
               assignNextCzar();
             }, 3000);
@@ -137,11 +136,6 @@ CAS.on('connection', async (socket) => {
             CAS.emit('game winner', { winner: players[ii].userName });
             // Force disconnect all sockets connected
             CAS.disconnectSockets();
-            // CAS.sockets.forEach((socket) => {
-
-              // If given socket id is exist in list of all sockets, kill it
-              // socket.disconnect(true);
-            // });
             players = [];
           }
         }
@@ -152,7 +146,7 @@ CAS.on('connection', async (socket) => {
 
   // Just the czar emits this (client side) after receiving black card
   socket.on('letsGo', () => {
-    if (socket.id === players[0].socketId) { //verifies that only czar can trigger 'letsGo'
+    if (socket.id === players[0].socketId) { // verifies that only czar can trigger 'letsGo'
       CAS.emit('Round Starting in 3 seconds!');
       setTimeout(() => { startRound() }, 3000);
     }
@@ -201,19 +195,6 @@ CAS.on('connection', async (socket) => {
     CAS.emit('blackCard', { card });
   };
 
-  // function generateScoreCard() {
-  //   let scoreCard = ``;
-  //   scoreCard += `\n= = = = = = = = = = = = = = = = = = =\n`;
-  //   scoreCard += ` * * * * * * SCORE CARD * * * * * *`;
-  //   scoreCard += `\n= = = = = = = = = = = = = = = = = = =\n`;
-  //   scoreCard += `||\tPLAYER\t\t--->   POINTS`;
-  //   scoreCard += `\n||    - - - - - - - - -       - - - -\n`;
-  //   players.forEach(player => {
-  //     scoreCard += `||\t${player.userName}\t--->\t${player.points}\n`;
-  //   });
-  //   scoreCard += `\n= = = = = = = = = = = = = = = = = = =\n`;
-  //   return scoreCard;
-  // }
 });
 
 // EOF
