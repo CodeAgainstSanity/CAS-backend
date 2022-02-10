@@ -1,11 +1,11 @@
 'use strict';
 
-// ================ Server Initialization ================
+// ============ Server Initialization ============
 
 const server = require('../index.js');
 const CAS = server.of('/CAS');
 
-// ================ IMPORTS ================
+// ============ IMPORTS ============
 
 require('dotenv').config({ path: '../.env' });
 const mongoose = require('mongoose');
@@ -13,11 +13,11 @@ const { WhiteDeckModel, BlackDeckModel } = require('./schema/cards.js');
 const Player = require('./callbacks/Player.js');
 const shuffle = require('./callbacks/shuffle.js');
 const charizard = require('./callbacks/charizard.js');
-const { sampleWhite, sampleBlack } = require('./vars/sampleData.js');
+const { sampleWhiteDeck, sampleBlackDeck } = require('./vars/sampleData.js');
 const { horizLine, lineBreak } = require('./callbacks/cli-helpers.js')
 
 
-// ================ DATABASE CONNECTION ================
+// ============ DATABASE CONNECTION ============
 
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
@@ -34,7 +34,7 @@ db.once('open', function () {
       if (results.length === 0) {
         const whiteDeck = new WhiteDeckModel({
           Deck: 'White',
-          Cards: sampleWhite
+          Cards: sampleWhiteDeck
         });
         whiteDeck.save();
       }
@@ -45,7 +45,7 @@ db.once('open', function () {
       if (results.length === 0) {
         const blackDeck = new BlackDeckModel({
           Deck: 'Black',
-          Cards: sampleBlack
+          Cards: sampleBlackDeck
         });
         blackDeck.save();
       }
@@ -53,7 +53,7 @@ db.once('open', function () {
 
 });
 
-// ================ GLOBAL VARS ================
+// ============ GLOBAL VARS ============
 
 let whiteDeck, blackDeck;
 let cardSubmissionsWithId = [];
@@ -65,7 +65,7 @@ horizLine();
 console.log(`GAME CONFIG: \n${totalPlayers} players \nFirst to ${maxPoints} points wins the game`);
 horizLine();
 
-// ================ Client Connection ================
+// ============ Client Connection ============
 
 CAS.on('connection', async (socket) => {
   // We can assign each socket.id to a name here??? Up to yall
@@ -127,7 +127,7 @@ CAS.on('connection', async (socket) => {
             CAS.emit('another round');
             setTimeout(() => {
               dealOneCard();
-              assignCzar();
+              assignNextCzar();
             },
               3000);
 
@@ -184,16 +184,7 @@ CAS.on('connection', async (socket) => {
   }
 
   // Assigns next person in queue as the Czar, and updates the queue
-  function assignCzar() {
-    let tempPlayer = players.shift();
-    players.push(tempPlayer);
-    tempPlayer = players[0].socketId;
-    CAS.to(tempPlayer).emit('Czar', charizard());
-  }
-
-
-  // Assigns next person in queue as the Czar, and updates the queue
-  function assignCzar() {
+  function assignNextCzar() {
     let formerCzar = players.shift();
     players.push(formerCzar);
     let newCzar = players[0].socketId;
