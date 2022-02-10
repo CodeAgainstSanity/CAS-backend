@@ -94,6 +94,8 @@ player.on('connect', () => {
     horizLine();
     console.log('The winning card:', payload.winningCard);
     console.log('Submitted by:', payload.roundWinnerUsername);
+    lineBreak();
+    console.log(payload.scoreCard);
   });
 
   player.on('card submissions', async (payload) => {
@@ -129,8 +131,9 @@ player.on('connect', () => {
 
   player.on('game winner', (payload) => {
     horizLine();
-    console.log('Congratulations, the game winner is:', payload.winner);
+    console.log(`> > > > The GAME WINNER is ${payload.winner.toUpperCase()}!!! < < < <`);
     horizLine();
+    console.log(payload.scoreCard);
   });
 
   function submitWhiteCard() {
@@ -166,8 +169,4 @@ player.on('connect', () => {
 });
 
 // EOF
-/* Bug possibilities:
-1. 'cardChoice' overlapping scope?
-2. on server, not updating socketId associate with Czar
-3. 'draw white' event not triggering on client
-*/
+
