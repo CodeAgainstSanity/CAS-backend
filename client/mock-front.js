@@ -3,7 +3,8 @@
 // ============ IMPORTS ============
 
 const socketio = require('socket.io-client');
-let HOST = 'http://localhost:3000';
+// let HOST = 'http://localhost:3000';
+let HOST = 'https://code-against-sanity.herokuapp.com';
 let namespace = '/CAS';
 const player = socketio.connect(`${HOST}${namespace}`);
 const readline = require('readline');
