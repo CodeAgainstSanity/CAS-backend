@@ -1,20 +1,23 @@
 'use strict';
 
-// ================ Server Initialization ================
+// ============ Server Initialization ============
 
 const server = require('../index.js');
 const CAS = server.of('/CAS');
 
-// ================ IMPORTS ================
+// ============ IMPORTS ============
 
 require('dotenv').config({ path: '../.env' });
 const mongoose = require('mongoose');
 const { WhiteDeckModel, BlackDeckModel } = require('./schema/cards.js');
 const Player = require('./callbacks/Player.js');
 const shuffle = require('./callbacks/shuffle.js');
-const { sampleWhite, sampleBlack } = require('./sampleCardData/sampleData.js');
+const charizard = require('./callbacks/charizard.js');
+const { sampleWhiteDeck, sampleBlackDeck } = require('./vars/sampleData.js');
+const { horizLine, lineBreak, generateScoreCard } = require('./callbacks/cli-helpers.js')
 
-// ================ DATABASE CONNECTION ================
+
+// ============ DATABASE CONNECTION ============
 
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
@@ -31,7 +34,7 @@ db.once('open', function () {
       if (results.length === 0) {
         const whiteDeck = new WhiteDeckModel({
           Deck: 'White',
-          Cards: sampleWhite
+          Cards: sampleWhiteDeck
         });
         whiteDeck.save();
       }
@@ -42,7 +45,7 @@ db.once('open', function () {
       if (results.length === 0) {
         const blackDeck = new BlackDeckModel({
           Deck: 'Black',
-          Cards: sampleBlack
+          Cards: sampleBlackDeck
         });
         blackDeck.save();
       }
@@ -50,21 +53,27 @@ db.once('open', function () {
 
 });
 
-// ================ GLOBAL VARS ================
+// ============ GLOBAL VARS ============
 
 let whiteDeck, blackDeck;
-let cardSubmissions = [];
+let cardSubmissionsWithId = [];
+const totalPlayers = process.argv[2] || 4;
+const maxPoints = process.argv[3] || 2;
 let players = [];
 
-// ================ Client Connection ================
+horizLine();
+console.log(`GAME CONFIG: \n${totalPlayers} players \nFirst to ${maxPoints} points wins the game`);
+horizLine();
+
+// ============ Client Connection ============
 
 CAS.on('connection', async (socket) => {
-  // We can assign each socket.id to a name here??? Up to yall
   // Maybe stretch goal is player inputs their own name
   players.push(new Player(socket.id));
-  socket.emit('connection successful', {userName: players[players.length-1].userName});
-  socket.broadcast.emit('new player joined', players[players.length-1].userName); // alerts players waiting when new player joins
-  if (players.length === 4) {
+  socket.emit('connection successful', { userName: players[players.length - 1].userName });
+  socket.broadcast.emit('new player joined', players[players.length - 1].userName); // alerts players waiting when new player joins
+  if (players.length === totalPlayers) {
+    console.log(generateScoreCard(players)); // For testing/editing scorecard appearance
     firstCzar();
     whiteDeck = await WhiteDeckModel.find({});
     blackDeck = await BlackDeckModel.find({});
@@ -76,15 +85,16 @@ CAS.on('connection', async (socket) => {
   }
 
   socket.on('card submission', (payload) => {
-    let czarOptions = [];
+    let cardSubmissions = [];
+    console.log(`\nRECEIVED card submission: \n"${payload.card}"\n`);
     let tempObj = { card: payload.card, socketId: socket.id };
-    // Card submissions var gets purged on new round, so dont worry about pushing here
-    cardSubmissions.push(tempObj);
-    // If all 3 players submitted a choice, card submissions arr.length === 3
-    if (cardSubmissions.length === 3) {
-      shuffle(cardSubmissions);
-      czarOptions = cardSubmissions.map(card => card.card); // strips player id out
-      CAS.emit('card submissions', { czarOptions });
+    // Card submissions var gets purged on new round
+    cardSubmissionsWithId.push(tempObj);
+    // If all players submitted a choice, card submissions arr.length === totalPlayers - 1
+    if (cardSubmissionsWithId.length === totalPlayers - 1) {
+      shuffle(cardSubmissionsWithId);
+      cardSubmissions = cardSubmissionsWithId.map(card => card.card); // strips player id out so Card Czar doesn't know who played which card
+      CAS.emit('card submissions', { cardSubmissions });
     }
   });
 
@@ -93,54 +103,54 @@ CAS.on('connection', async (socket) => {
     // Checks if selection is coming from the current card czar
     if (socket.id === players[0].socketId) {
 
-      socket.broadcast.emit('show all choice', {winningCard: payload.roundWinner}); // { winningCard: cardChoice }
-
-      let winnerObj = cardSubmissions.filter((element) => {
-        return element.card === payload.roundWinner; // TEST does this need to be payload.roundWinner.card?
+      let winnerObj = cardSubmissionsWithId.filter((element) => {
+        return element.card === payload.roundWinner;
       });
 
-      for (let ii = 0; ii < players.length; ii++) { // iterate through players array to find which player's id matches socketid on winnerObj
+      let roundWinnerUsername = "";
+
+      for (let ii = 0; ii < players.length; ii++) {
+        if (players[ii].socketId === winnerObj[0].socketId) {
+          roundWinnerUsername = players[ii].userName;
+        }
+      }
+      // insert scorecard into this emit:
+
+      
+      for (let ii = 0; ii < players.length; ii++) { // find winner, increment score
         if (players[ii].socketId === winnerObj[0].socketId) {
           players[ii].points += 1;
+          
+          let scoreCard = generateScoreCard(players);
+          socket.broadcast.emit('broadcast round winner', { winningCard: payload.roundWinner, roundWinnerUsername, scoreCard });
+          
+          if (players[ii].points < maxPoints) {
+            cardSubmissionsWithId = []; // resets array for next round
 
-          if (players[ii].points < 3) {
-            cardSubmissions = []; // resets array for next round
-
-            CAS.emit('another round');
-
-            for (ii = 1; ii < players.length - 1; ii++) {
-              let tempCard = whiteDeck.pop();
-              CAS.to(players[ii]).emit('draw white', { card: tempCard });
-            }  // TODO make this a callback function called dealOneCard()
-
-            assignCzar();
-
+            setTimeout(() => {
+              CAS.emit('another round');
+              dealOneCard();
+              assignNextCzar();
+            }, 3000);
           } else {
             CAS.emit('game winner', { winner: players[ii].userName });
             // Force disconnect all sockets connected
-            socket.emit('pls disconnect');
+            CAS.disconnectSockets();
+            players = [];
           }
         }
       }
     }
   });
-  
-  // Set up event listener for client disconnect then remove said client socket id from player queue
-  socket.on('disconnect all', () => {
-    CAS.sockets.forEach((socket) => {
-      // If given socket id is exist in list of all sockets, kill it
-      socket.disconnect(true);
-    });
-    players = [];
+
+
+  // Just the czar emits this (client side) after receiving black card
+  socket.on('letsGo', () => {
+    if (socket.id === players[0].socketId) { // verifies that only czar can trigger 'letsGo'
+      CAS.emit('Round Starting in 3 seconds!');
+      setTimeout(() => { startRound() }, 3000);
+    }
   });
-  
-    // Just the czar emits this (client side) after receiving black card
-    socket.on('letsGo', () => {
-      if (socket.id === players[0].socketId) { //verifies that only czar can trigger 'letsGo'
-        CAS.emit('Round Starting in 5 seconds!');
-        setTimeout(() => { startRound() }, 5000);
-      }
-    });
 
   // Functions need to be in the 'connection' event block, or 'socket' is unknown
   function dealCards() {
@@ -156,26 +166,35 @@ CAS.on('connection', async (socket) => {
     });
   }
 
+  function dealOneCard() {
+    for (let ii = 1; ii < players.length; ii++) { // TEST I don't think this should be length - 1
+      let tempCard = whiteDeck.pop();
+      console.log(`dealing one more card: \n"${tempCard}"\nto ${players[ii].userName}`);
+      CAS.to(players[ii].socketId).emit('draw white', { card: tempCard });
+    }
+  }
+
   // Alerts first person they are czar
   function firstCzar() {
-    CAS.to(players[0].socketId).emit('Czar', 'You are the new Card Czar');
+    CAS.to(players[0].socketId).emit('Czar', charizard());
   }
 
   // Assigns next person in queue as the Czar, and updates the queue
-  function assignCzar() {
-    let tempPlayer = players.shift();
-    players.push(tempPlayer);
-    tempPlayer = players[0].socketId;
-    CAS.to(tempPlayer).emit('Czar', 'You are the new Card Czar');
+  function assignNextCzar() {
+    let formerCzar = players.shift();
+    players.push(formerCzar);
+    let newCzar = players[0].socketId;
+    CAS.to(newCzar).emit('Czar', charizard());
   }
 
   function startRound() {
-    cardSubmissions = [];
+    cardSubmissionsWithId = [];
     // Pulls card off the top of the black card deck
     let card = blackDeck.pop();
     // Sends card with the 'blackCard' event
     CAS.emit('blackCard', { card });
   };
+
 });
 
 // EOF
