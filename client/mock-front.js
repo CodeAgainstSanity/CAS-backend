@@ -94,6 +94,8 @@ player.on('connect', (socket) => {
     horizLine();
     console.log('The winning card:', payload.winningCard);
     console.log('Submitted by:', payload.roundWinnerUsername);
+    lineBreak();
+    console.log(payload.scoreCard);
   });
 
   player.on('card submissions', (payload) => {
@@ -127,8 +129,9 @@ player.on('connect', (socket) => {
 
   player.on('game winner', (payload) => {
     horizLine();
-    console.log('Congratulations, the game winner is:', payload.winner);
+    console.log(`> > > > The GAME WINNER is ${payload.winner.toUpperCase()}!!! < < < <`);
     horizLine();
+    console.log(payload.scoreCard);
   });
 
 });

@@ -14,7 +14,7 @@ const Player = require('./callbacks/Player.js');
 const shuffle = require('./callbacks/shuffle.js');
 const charizard = require('./callbacks/charizard.js');
 const { sampleWhite, sampleBlack } = require('./sampleCardData/sampleData.js');
-const { horizLine, lineBreak } = require('./callbacks/cli-helpers.js')
+const { horizLine, lineBreak, generateScoreCard } = require('./callbacks/cli-helpers.js')
 
 
 // ================ DATABASE CONNECTION ================
@@ -74,6 +74,7 @@ CAS.on('connection', async (socket) => {
   socket.emit('connection successful', { userName: players[players.length - 1].userName });
   socket.broadcast.emit('new player joined', players[players.length - 1].userName); // alerts players waiting when new player joins
   if (players.length === totalPlayers) {
+    console.log(generateScoreCard(players));
     firstCzar();
     whiteDeck = await WhiteDeckModel.find({});
     blackDeck = await BlackDeckModel.find({});
@@ -117,13 +118,12 @@ CAS.on('connection', async (socket) => {
       // insert scorecard into this emit:
 
       
-      socket.broadcast.emit('broadcast round winner', { winningCard: payload.roundWinner, roundWinnerUsername });
-
-      for (let ii = 0; ii < players.length; ii++) {
+      for (let ii = 0; ii < players.length; ii++) { // find winner, increment score
         if (players[ii].socketId === winnerObj[0].socketId) {
           players[ii].points += 1;
           
-          generateScoreCard();
+          let scoreCard = generateScoreCard(players);
+          socket.broadcast.emit('broadcast round winner', { winningCard: payload.roundWinner, roundWinnerUsername, scoreCard });
           
           if (players[ii].points < maxPoints) {
             cardSubmissions = []; // resets array for next round
@@ -132,10 +132,7 @@ CAS.on('connection', async (socket) => {
             setTimeout(() => {
               dealOneCard();
               assignCzar();
-            },
-              3000);
-
-
+            }, 3000);
           } else {
             CAS.emit('game winner', { winner: players[ii].userName });
             // Force disconnect all sockets connected
@@ -211,16 +208,19 @@ CAS.on('connection', async (socket) => {
     CAS.emit('blackCard', { card });
   };
 
-  function generateScoreCard() {
-    horizLine();
-    console.log(`* * * *\tSCORE CARD\t* * * *`);
-    console.log(`||\tPLAYER\t--->\tPOINTS`);
-    lineBreak();
-    players.forEach(player => {
-      console.log(`||\t${player.userName}\t--->\t${player.points}`);
-    });
-    horizLine();
-  }
+  // function generateScoreCard() {
+  //   let scoreCard = ``;
+  //   scoreCard += `\n= = = = = = = = = = = = = = = = = = =\n`;
+  //   scoreCard += ` * * * * * * SCORE CARD * * * * * *`;
+  //   scoreCard += `\n= = = = = = = = = = = = = = = = = = =\n`;
+  //   scoreCard += `||\tPLAYER\t\t--->   POINTS`;
+  //   scoreCard += `\n||    - - - - - - - - -       - - - -\n`;
+  //   players.forEach(player => {
+  //     scoreCard += `||\t${player.userName}\t--->\t${player.points}\n`;
+  //   });
+  //   scoreCard += `\n= = = = = = = = = = = = = = = = = = =\n`;
+  //   return scoreCard;
+  // }
 });
 
 // EOF
