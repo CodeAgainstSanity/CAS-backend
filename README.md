@@ -11,7 +11,7 @@ Server link:
 
 ## Web Application
 
-Cards Against Sanity (CAS) is our idea of what that popular card game: Cards Against Humanity™ would look like if it was made in the eyes of a software developer. More specifically, one going through a coding boot-camp.
+Code Against Sanity (CAS) is our idea of what that popular card game: Cards Against Humanity™ would look like if it was made in the eyes of a software developer. More specifically, one going through a coding boot-camp.
 
 The rules of the game are fairly straightforward:
 
