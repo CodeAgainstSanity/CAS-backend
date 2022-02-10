@@ -102,7 +102,7 @@ CAS.on('connection', async (socket) => {
   socket.on('czar selection', (payload) => {
     // Checks if selection is coming from the current card czar
     if (socket.id === players[0].socketId) {
-
+      console.log();
       let winnerObj = cardSubmissions.filter((element) => {
         return element.card === payload.roundWinner;
       });
@@ -136,11 +136,6 @@ CAS.on('connection', async (socket) => {
             CAS.emit('game winner', { winner: players[ii].userName });
             // Force disconnect all sockets connected
             CAS.disconnectSockets();
-            // CAS.sockets.forEach((socket) => {
-
-              // If given socket id is exist in list of all sockets, kill it
-              // socket.disconnect(true);
-            // });
             players = [];
           }
         }
