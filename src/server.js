@@ -70,7 +70,6 @@ horizLine();
 CAS.on('connection', async (socket) => {
   // Maybe stretch goal is player inputs their own name
   players.push(new Player(socket.id));
-  console.log(players);
   socket.emit('connection successful', { userName: players[players.length - 1].userName });
   socket.broadcast.emit('new player joined', players[players.length - 1].userName); // alerts players waiting when new player joins
   if (players.length === totalPlayers) {
