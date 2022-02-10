@@ -24,6 +24,8 @@ player.on('connect', () => {
     lineBreak();
   });
 
+  player.on('disconnect', () => rl.close());
+
   player.on('new player joined', (payload) => {
     console.log('New Player Joined:', payload);
   });
@@ -79,7 +81,7 @@ player.on('connect', () => {
           console.error(e);
         }
       }
-      console.log('Card choice is:', cardChoice);
+
       horizLine();
       console.log(`You chose: "${cardChoice}"`);
       player.emit('card submission', { card: cardChoice, socketId: player.id });

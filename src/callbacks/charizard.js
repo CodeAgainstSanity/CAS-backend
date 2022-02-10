@@ -1,5 +1,5 @@
 module.exports = function charizard() {
-  return `YOU are the new CARD CZAR  \n
+  return `\n
   ."-,.__ \n
   '.     '.  , \n
 .--'  .._,'"-' ''. \n
@@ -39,5 +39,6 @@ _.,        '.   <  <\\  \n              _
  .'        /"'          |  "'   '_ \n
 /_|.-'\\ ,".             '.''__'-( \\ \n
 
-  / ,"'"\\,'               '/  '-.|"`;
+  / ,"'"\\,'               '/  '-.|"\n
+\tYOU are the new CARD CZAR!`;
 }
