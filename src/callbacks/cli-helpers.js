@@ -23,13 +23,11 @@ function generateScoreCard(players) {
     for (let i = 0; i < bufferLength; i++) {
       buffer += ' ';
     };
-
     scoreCard += `||\t${player.userName}${buffer}---->\t${player.points}\n`;
   });
+  scoreCard += `||`
   scoreCard += `\n= = = = = = = = = = = = = = = = = = = = = =\n`;
-  scoreCard += `\n\t}sdflkj\tss\ts\t`;
-  scoreCard += `\n123456789012345678901234567890`;
-  
+
   return scoreCard;
 }
 
