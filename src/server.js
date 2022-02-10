@@ -70,6 +70,7 @@ horizLine();
 CAS.on('connection', async (socket) => {
   // Maybe stretch goal is player inputs their own name
   players.push(new Player(socket.id));
+  console.log(players);
   socket.emit('connection successful', { userName: players[players.length - 1].userName });
   socket.broadcast.emit('new player joined', players[players.length - 1].userName); // alerts players waiting when new player joins
   if (players.length === totalPlayers) {
@@ -116,14 +117,14 @@ CAS.on('connection', async (socket) => {
       }
       // insert scorecard into this emit:
 
-      
+
       for (let ii = 0; ii < players.length; ii++) { // find winner, increment score
         if (players[ii].socketId === winnerObj[0].socketId) {
           players[ii].points += 1;
-          
+
           let scoreCard = generateScoreCard(players);
           socket.broadcast.emit('broadcast round winner', { winningCard: payload.roundWinner, roundWinnerUsername, scoreCard });
-          
+
           if (players[ii].points < maxPoints) {
             cardSubmissionsWithId = []; // resets array for next round
 
@@ -143,6 +144,13 @@ CAS.on('connection', async (socket) => {
     }
   });
 
+  socket.on('disconnect', () => {
+    for (let ii = 0; ii < players.length; ii++) {
+      if (players[ii].socketId === socket.id) {
+        players.splice(ii, 1);
+      }
+    }
+  });
 
   // Just the czar emits this (client side) after receiving black card
   socket.on('letsGo', () => {
