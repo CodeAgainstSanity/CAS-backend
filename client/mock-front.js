@@ -12,10 +12,9 @@ const rl = readline.createInterface(process.stdin, process.stdout); // Creates a
 
 // ================ GLOBAL VARS ================
 
-let players = [];
 let whiteCards = [];
 let blackcard = "";
-let czarOptions = [];
+let cardSubmissions = [];
 let isCzar = false;
 
 player.on('connect', (socket) => {
@@ -24,6 +23,7 @@ player.on('connect', (socket) => {
     console.log('Connection successful.\n\nYOUR NAME IS:', payload.userName);
     lineBreak();
   });
+
   player.on('new player joined', (payload) => {
     console.log('New Player Joined:', payload);
   });
@@ -44,7 +44,7 @@ player.on('connect', (socket) => {
     horizLine();
     console.log('The Card Czar Charizard has been passed along to the next player...');
 
-    czarOptions = []; // Clears out the array of submissions from previous round
+    cardSubmissions = []; // Clears out the array of submissions from previous round
   });
 
   player.on('Round Starting in 3 seconds!', () => {
@@ -59,7 +59,7 @@ player.on('connect', (socket) => {
 
   });
 
-  player.on('blackCard', (payload) => {
+  player.on('blackCard', async (payload) => {
     blackcard = payload.card;
     horizLine();
     console.log(`HERE IS THE PROMPT:`);
@@ -73,16 +73,18 @@ player.on('connect', (socket) => {
       // display the options line by line with index number at front as "[ 0 ]"
       whiteCards.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
       lineBreak();
-
-      rl.question(`ENTER the number of the white card that you want to submit: `, (cardChoiceIdx) => {
-        if (!isCzar) {
-          let cardChoice = whiteCards.splice(cardChoiceIdx, 1)[0];
-          horizLine();
-          console.log(`You chose: "${cardChoice}"`);
-          player.emit('card submission', { card: cardChoice, socketId: player.id });
+      let cardChoice = undefined;
+      while (cardChoice === undefined) {
+        try {
+          cardChoice = await submitWhiteCard();
+        } catch (e) {
+          console.error(e);
         }
-        rl.pause();
-      });
+      }
+      console.log('Card choice is:', cardChoice);
+      horizLine();
+      console.log(`You chose: "${cardChoice}"`);
+      player.emit('card submission', { card: cardChoice, socketId: player.id });
     } else {
       lineBreak();
       console.log(`Awaiting player choices...`);
@@ -96,30 +98,32 @@ player.on('connect', (socket) => {
     console.log('Submitted by:', payload.roundWinnerUsername);
   });
 
-  player.on('card submissions', (payload) => {
-    czarOptions = payload.czarOptions;
+  player.on('card submissions', async (payload) => {
+    cardSubmissions = payload.cardSubmissions;
 
     if (isCzar) {
       horizLine();
       console.log('Here are all of the player submissions: ');
       lineBreak();
-      czarOptions.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
+      cardSubmissions.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
       lineBreak();
       rl.resume();
-      rl.question(`ENTER the number of your favorite response: `, (czarChoiceIdx) => {
-        if (isCzar) {
-          let czarChoice = czarOptions.splice(czarChoiceIdx, 1)[0];
-          horizLine();
-          console.log(`You chose "${czarChoice}" as the winner of this round`);
-          player.emit('czar selection', { roundWinner: czarChoice });
+      let czarChoice = undefined;
+      while (czarChoice === undefined) {
+        try {
+          czarChoice = await czarDecision();
+        } catch (e) {
+          console.error(e);
         }
-        rl.pause();  
-      });
+      }
+      horizLine();
+      console.log(`You chose "${czarChoice}" as the winner of this round`);
+      player.emit('czar selection', { roundWinner: czarChoice });
     } else { // for all other players
       horizLine();
       console.log('Here are all of the player submissions: ');
       lineBreak();
-      czarOptions.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
+      cardSubmissions.forEach((card, idx) => console.log(`[ ${idx} ] - "${card}"`));
       lineBreak();
       setTimeout(() => console.log(`Awaiting the card Czar's decision...\n`), 1500);
     }
@@ -130,6 +134,36 @@ player.on('connect', (socket) => {
     console.log('Congratulations, the game winner is:', payload.winner);
     horizLine();
   });
+
+  function submitWhiteCard() {
+    return new Promise((resolve, reject) => {
+      rl.question(`ENTER the number of the white card that you want to submit: `, (cardChoiceIdx) => {
+        cardChoiceIdx = parseInt(cardChoiceIdx);
+        if (cardChoiceIdx >= 0 && cardChoiceIdx <= 6 && Math.sign(cardChoiceIdx) === 1 || Math.sign(cardChoiceIdx) === 0) {
+          let cardChoice = whiteCards.splice(cardChoiceIdx, 1)[0];
+          resolve(cardChoice);
+        } else {
+          reject('Please choose a valid card number.');
+        }
+        rl.pause();
+      });
+    });
+  }
+
+  function czarDecision() {
+    return new Promise((resolve, reject) => {
+      rl.question(`ENTER the number of your favorite response: `, (czarChoiceIdx) => {
+        czarChoiceIdx = parseInt(czarChoiceIdx);
+        if (czarChoiceIdx >= 0 && czarChoiceIdx < cardSubmissions.length && Math.sign(czarChoiceIdx) === 1 || Math.sign(czarChoiceIdx) === 0) {
+          let czarChoice = cardSubmissions.splice(czarChoiceIdx, 1)[0];
+          resolve(czarChoice);
+        } else {
+          reject('Please choose a valid card number.');
+        }
+        rl.pause();
+      });
+    });
+  }
 
 });
 
