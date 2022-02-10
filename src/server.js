@@ -56,7 +56,7 @@ db.once('open', function () {
 // ================ GLOBAL VARS ================
 
 let whiteDeck, blackDeck;
-let cardSubmissions = [];
+let cardSubmissionsWithId = [];
 const totalPlayers = process.argv[2] || 3;
 const maxPoints = process.argv[3] || 2
 let players = [];
@@ -85,16 +85,16 @@ CAS.on('connection', async (socket) => {
   }
 
   socket.on('card submission', (payload) => {
-    let czarOptions = [];
+    let cardSubmissions = [];
     console.log(`\nRECEIVED card submission: \n"${payload.card}"\n`);
     let tempObj = { card: payload.card, socketId: socket.id };
     // Card submissions var gets purged on new round
-    cardSubmissions.push(tempObj);
+    cardSubmissionsWithId.push(tempObj);
     // If all players submitted a choice, card submissions arr.length === totalPlayers - 1
-    if (cardSubmissions.length === totalPlayers - 1) {
-      shuffle(cardSubmissions);
-      czarOptions = cardSubmissions.map(card => card.card); // strips player id out so Card Czar doesn't know who played which card
-      CAS.emit('card submissions', { czarOptions });
+    if (cardSubmissionsWithId.length === totalPlayers - 1) {
+      shuffle(cardSubmissionsWithId);
+      cardSubmissions = cardSubmissionsWithId.map(card => card.card); // strips player id out so Card Czar doesn't know who played which card
+      CAS.emit('card submissions', { cardSubmissions });
     }
   });
 
@@ -103,7 +103,7 @@ CAS.on('connection', async (socket) => {
     // Checks if selection is coming from the current card czar
     if (socket.id === players[0].socketId) {
 
-      let winnerObj = cardSubmissions.filter((element) => {
+      let winnerObj = cardSubmissionsWithId.filter((element) => {
         return element.card === payload.roundWinner;
       });
 
@@ -122,7 +122,7 @@ CAS.on('connection', async (socket) => {
           players[ii].points += 1;
 
           if (players[ii].points < maxPoints) {
-            cardSubmissions = []; // resets array for next round
+            cardSubmissionsWithId = []; // resets array for next round
 
             CAS.emit('another round');
             setTimeout(() => {
@@ -130,7 +130,6 @@ CAS.on('connection', async (socket) => {
               assignCzar();
             },
               3000);
-
 
           } else {
             CAS.emit('game winner', { winner: players[ii].userName });
@@ -200,7 +199,7 @@ CAS.on('connection', async (socket) => {
   }
 
   function startRound() {
-    cardSubmissions = [];
+    cardSubmissionsWithId = [];
     // Pulls card off the top of the black card deck
     let card = blackDeck.pop();
     // Sends card with the 'blackCard' event
