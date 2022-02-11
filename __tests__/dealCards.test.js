@@ -1,8 +1,8 @@
 'use strict';
 
-const sampleWhite = require('../src/sampleCardData/sampleData.js')
-
-const whiteDeck = sampleWhite;
+const { sampleWhite } = require('../src/vars/sampleData.js')
+// console.log(sampleWhite);
+const whiteDeck = sampleWhite.slice();
 
 let players = [
   {
@@ -23,8 +23,9 @@ let players = [
 ];
 // test variables 
 
+let cardsDealt = [];
+
 function dealCards() {
-  let cardsDealt = [];
 
   console.log('inside dealCards()');
   players.forEach((player, idx) => {
