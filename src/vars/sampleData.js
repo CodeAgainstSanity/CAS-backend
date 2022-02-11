@@ -1,6 +1,6 @@
 'use strict';
 
-let sampleWhite = [
+let sampleWhiteDeck = [
   'Jacob giving a thumbs up',
   'A craps table',
   'Accidentally working on main',
@@ -61,7 +61,7 @@ let sampleWhite = [
   'Clicking on the screenshare thinking it was my screen'
 ];
 
-let sampleBlack = [
+let sampleBlackDeck = [
   'JavaScript 401 is like living in Spain without _____.',
   'The easiest part of software development is _____.',
   'What has been making life difficult at Code Fellows?',
@@ -77,6 +77,6 @@ let sampleBlack = [
 ];
 
 module.exports = {
-  sampleWhite,
-  sampleBlack
+  sampleWhiteDeck,
+  sampleBlackDeck
 };
