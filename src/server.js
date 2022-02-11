@@ -174,7 +174,7 @@ CAS.on('connection', async (socket) => {
   }
 
   function dealOneCard() {
-    for (let ii = 1; ii < players.length; ii++) { // TEST I don't think this should be length - 1
+    for (let ii = 1; ii < players.length; ii++) { 
       let tempCard = whiteDeck.pop();
       console.log(`dealing one more card: \n"${tempCard}"\nto ${players[ii].userName}`);
       CAS.to(players[ii].socketId).emit('draw white', { card: tempCard });
