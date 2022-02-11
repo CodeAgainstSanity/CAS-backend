@@ -3,8 +3,8 @@
 // ============ IMPORTS ============
 
 const socketio = require('socket.io-client');
-// let HOST = 'http://localhost:3000';
-let HOST = 'https://code-against-sanity.herokuapp.com';
+let HOST = 'http://localhost:3000';
+// let HOST = 'https://code-against-sanity.herokuapp.com';
 let namespace = '/CAS';
 const player = socketio.connect(`${HOST}${namespace}`);
 const readline = require('readline');
@@ -95,9 +95,8 @@ player.on('connect', () => {
 
   player.on('broadcast round winner', (payload) => {
     horizLine();
-    console.log('The winning card:', payload.winningCard);
-    console.log('Submitted by:', payload.roundWinnerUsername);
-    lineBreak();
+    console.log(`${payload.roundWinnerUsername.toUpperCase()} had the winning card! \n\n>>>\tPROMPT: "${blackcard}"\n>>>\tANSWER: "${payload.winningCard.toUpperCase()}"`);
+    horizLine();
     console.log(payload.scoreCard);
   });
 

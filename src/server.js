@@ -57,8 +57,8 @@ db.once('open', function () {
 
 let whiteDeck, blackDeck;
 let cardSubmissionsWithId = [];
-const totalPlayers = process.argv[2] || 4;
-const maxPoints = process.argv[3] || 2;
+const totalPlayers = process.argv[2] || 2;
+const maxPoints = process.argv[3] || 1;
 let players = [];
 
 horizLine();
@@ -204,6 +204,5 @@ CAS.on('connection', async (socket) => {
 
 });
 
-module.exports = { startRound, assignNextCzar, firstCzar, dealOneCard, dealCards };
 
 // EOF
