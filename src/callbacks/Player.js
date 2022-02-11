@@ -10,46 +10,46 @@ module.exports = class Player {
 
 const nameArray = [
   'Refrigerator',
-  'Captain', 
-  'Steve', 
+  'Captain',
+  'Steve',
   'Dark',
   'Pants',
-  'Thunder', 
+  'Thunder',
   'Star',
-  'Danger', 
-  'Hospital', 
-  'Fire', 
-  'Dagger', 
-  'Tree', 
-  'Bird', 
-  'Butt', 
-  'Penguin', 
-  'Water', 
-  'Earth', 
-  'Air', 
-  'Candle', 
-  'Socks', 
-  'Pirate', 
-  'Wings', 
-  'Light', 
-  'Android', 
-  'Rain', 
-  'Tornado', 
-  'Volcano', 
-  'Person', 
-  'Car', 
+  'Danger',
+  'Hospital',
+  'Fire',
+  'Dagger',
+  'Tree',
+  'Bird',
+  'Butt',
+  'Penguin',
+  'Water',
+  'Earth',
+  'Air',
+  'Candle',
+  'Socks',
+  'Pirate',
+  'Wings',
+  'Light',
+  'Android',
+  'Rain',
+  'Tornado',
+  'Volcano',
+  'Person',
+  'Car',
   'Musical',
   'Blue',
-  'Magic', 
+  'Magic',
 ];
 
-function name(){
+function name() {
   let first = nameArray[Math.floor(Math.random() * (nameArray.length - 1))];
   let last = nameArray[Math.floor(Math.random() * (nameArray.length - 1))];
   let userName = first + ' ' + last;
-  if(first === last || first === null || last === null){
-    return name()
+  if (first === last || first === null || last === null) {
+    return name();
   } else {
-  return userName;
+    return userName;
   };
 };
