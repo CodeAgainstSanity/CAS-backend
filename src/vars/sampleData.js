@@ -17,17 +17,17 @@ let sampleWhite = [
   'Imposter Syndrome',
   'The crying corner',
   'Reading the docs',
-  'Neglecting your family and friends',
+  'Neglecting my family and friends',
   'JB\'s shirts',
-  'Dozing off with your camera on',
-  'Forgetting your learning journal',
+  'Dozing off with my camera on',
+  'Forgetting my learning journal',
   'A missing semicolon',
   'Salmon Cookies',
   'Getting COVID',
   'Waking up at 8:59',
   'A power outage',
   'Pulling an all-nighter',
-  'Not remembering the last time you left the house',
+  'Not remembering the last time I left the house',
   'Joining the zoom with no shirt and hoping nobody noticed',
   'Getting called on during a bathroom break',
   'Broken links',
@@ -43,7 +43,7 @@ let sampleWhite = [
   'Being charged $1,000 by AWS',
   'Talking while muted',
   'Pull requests',
-  'Finding out you weren\'t muted',
+  'Finding out I wasn\'t muted',
   'Turning it off and then on again',
   'Moving across the country in the middle of school',
   'A pay wall',
@@ -58,7 +58,7 @@ let sampleWhite = [
   'Eating a lemon like an apple just to feel something again',
   'Vinicio',
   'Unending suffering',
-  'Clicking the screen of someone\'s screenshare thinking it was yours'
+  'Clicking on the screenshare thinking it was my screen'
 ];
 
 let sampleBlack = [
@@ -71,7 +71,7 @@ let sampleBlack = [
   'Software development feels like _____.',
   'The Docs say to try _____.',
   'Did _____ fix the bug?',
-  'I got docked points on the last lab for ____.',
+  'I got docked points on the last lab for _____.',
   'As a developer, my greatest achievement is _____.',
   'I didnt become a developer for the money, I did it for _____.'
 ];
