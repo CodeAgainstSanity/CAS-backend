@@ -1,8 +1,8 @@
 'use strict';
 
-const { sampleWhite } = require('../src/vars/sampleData.js')
-// console.log(sampleWhite);
-const whiteDeck = sampleWhite.slice();
+const { sampleWhiteDeck } = require('../src/vars/sampleData.js')
+
+const whiteDeck = sampleWhiteDeck.slice();
 
 let players = [
   {
@@ -21,7 +21,7 @@ let players = [
     userName: 'Hospital Fire'
   }
 ];
-// test variables 
+
 
 let cardsDealt = [];
 
@@ -36,8 +36,7 @@ function dealCards() {
     }
     cardsDealt.push(handOfCards.slice())
     players[idx].handOfCards = handOfCards;
-  
-    // CAS.to(player.socketId).emit('hand of white cards', { handOfCards });
+ 
   });
   cardsDealt.flat();  
 }
@@ -60,9 +59,3 @@ describe('Testing dealCards function', () => {
     }
   });
 });
-
-// describe('', () => {
-//   it('', () => {
-//     expect().toBe();
-//   })
-// })
